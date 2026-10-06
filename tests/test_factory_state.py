@@ -21,10 +21,11 @@ from lib.factory_stages import (
 )
 
 EXPECTED_STAGES = [
-    "topic", "research", "sources", "facts", "claims", "script",
-    "fact_check", "storyboard", "narration", "footage", "editorial",
-    "timeline", "audio", "render", "qa", "thumbnail", "metadata",
-    "publish", "analytics",
+    "topic", "research", "evidence", "script",
+    "fact_check", "storyboard", "narration", "footage",
+    "footage_intelligence", "editorial",
+    "timeline", "audio", "render", "qa", "packaging", "thumbnail",
+    "human_review", "publish", "analytics",
 ]
 
 
@@ -143,11 +144,12 @@ def test_set_artifact_rejects_invalid_known_schema(tmp_path):
 
 
 def test_provider_agnostic_custom_payload(tmp_path):
-    store = make_store(tmp_path)  # 'facts' has no canonical schema: free-form
+    store = make_store(tmp_path)  # 'evidence' has no canonical schema: free-form
     store.init("T")
-    assert "facts" not in ARTIFACT_SCHEMA_MAP
-    doc = store.set_artifact("facts", {"items": [{"claim": "x", "source": "y"}]})
-    assert doc["stages"]["facts"]["artifact_version"] == 1
+    assert "evidence" not in ARTIFACT_SCHEMA_MAP
+    doc = store.set_artifact("evidence", {"sources": [{"claim": "x"}],
+                                          "facts": [], "claims": []})
+    assert doc["stages"]["evidence"]["artifact_version"] == 1
 
 
 def test_history_is_append_only(tmp_path):

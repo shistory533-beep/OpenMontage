@@ -15,17 +15,19 @@
     "stages": {
       "type": "object",
       "required": [
-        "topic", "research", "sources", "facts", "claims", "script",
-        "fact_check", "storyboard", "narration", "footage", "editorial",
-        "timeline", "audio", "render", "qa", "thumbnail", "metadata",
-        "publish", "analytics"
+        "topic", "research", "evidence", "script",
+        "fact_check", "storyboard", "narration", "footage",
+        "footage_intelligence", "editorial",
+        "timeline", "audio", "render", "qa", "packaging", "thumbnail",
+        "human_review", "publish", "analytics"
       ],
       "propertyNames": {
         "enum": [
-          "topic", "research", "sources", "facts", "claims", "script",
-          "fact_check", "storyboard", "narration", "footage", "editorial",
-          "timeline", "audio", "render", "qa", "thumbnail", "metadata",
-          "publish", "analytics"
+          "topic", "research", "evidence", "script",
+          "fact_check", "storyboard", "narration", "footage",
+          "footage_intelligence", "editorial",
+          "timeline", "audio", "render", "qa", "packaging", "thumbnail",
+          "human_review", "publish", "analytics"
         ]
       },
       "additionalProperties": false,

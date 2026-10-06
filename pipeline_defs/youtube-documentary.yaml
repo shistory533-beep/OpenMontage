@@ -67,9 +67,28 @@ stages:
       - "RETRY: re-run research; never mutate the approved brief in place"
       - "CHECKPOINT BOUNDARY: research_brief stored in checkpoint artifacts"
 
+  - name: evidence
+    required_artifacts_in:
+      - research_brief
+    produces:
+      - evidence_bundle
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Sources, facts, and claims consolidated into one citable bundle
+      - Every claim traceable to a retrieved source
+    success_criteria:
+      - evidence_bundle with sourced facts and claim list
+      - "REQUIRED STATE: research completed"
+      - "FAILURE: unsourced claims fail the stage (fail closed)"
+      - "RETRY: re-consolidate; bundles versioned"
+      - "CHECKPOINT BOUNDARY: evidence_bundle stored in checkpoint artifacts"
+
   - name: script
     required_artifacts_in:
       - research_brief
+      - evidence_bundle
     produces:
       - script
     tools_available: []
@@ -173,6 +192,24 @@ stages:
       - "FAILURE: uncovered slots fail the stage; gaps reported, never filled synthetically"
       - "RETRY: extend acquisition with same slot queries; manifest versioned"
       - "CHECKPOINT BOUNDARY: completed only with human_approved=True"
+
+  - name: footage_intelligence
+    required_artifacts_in:
+      - asset_manifest
+    produces:
+      - footage_report
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Acquired clips validated (decodable, rights-clear, match slot intent)
+      - Coverage gaps and weak picks flagged before editorial locks them in
+    success_criteria:
+      - footage_report with per-asset verdicts (pass, weak, wrong, missing)
+      - "REQUIRED STATE: footage completed"
+      - "FAILURE: corrupt or rights-blocked picks fail the stage; flagged for re-acquisition"
+      - "RETRY: re-analyze after re-acquisition; reports versioned"
+      - "CHECKPOINT BOUNDARY: footage_report stored in checkpoint artifacts"
 
   - name: editorial
     required_artifacts_in:
@@ -305,6 +342,25 @@ stages:
       - "RETRY: re-package; bundles versioned"
       - "CHECKPOINT BOUNDARY: package_bundle stored in checkpoint artifacts"
 
+  - name: thumbnail
+    required_artifacts_in:
+      - render_report
+      - final_review
+    produces:
+      - thumbnail_set
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Thumbnail concept derived from the approved render, not invented
+      - Title-safe composition and readable at small sizes
+    success_criteria:
+      - thumbnail_set with concept and source frame reference
+      - "REQUIRED STATE: packaging completed"
+      - "FAILURE: missing render or failed QA blocks the stage (fail closed)"
+      - "RETRY: revised concept; prior concepts retained"
+      - "CHECKPOINT BOUNDARY: thumbnail_set stored in checkpoint artifacts"
+
   - name: human_review
     required_artifacts_in:
       - render_report
@@ -345,3 +401,20 @@ stages:
       - "FAILURE: any publish attempt before approval is rejected, never executed"
       - "RETRY: re-export only; no re-render on retry"
       - "CHECKPOINT BOUNDARY: completed only with human_approved=True"
+
+  - name: analytics
+    required_artifacts_in:
+      - publish_log
+    produces:
+      - analytics_report
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Metrics collected only after publish/export; no pre-publish access
+    success_criteria:
+      - analytics_report with collected metrics or collection plan
+      - "REQUIRED STATE: publish completed (blocked before publish/export)"
+      - "FAILURE: analytics before publish is rejected, never executed"
+      - "RETRY: re-collect; reports versioned"
+      - "CHECKPOINT BOUNDARY: analytics_report stored in checkpoint artifacts"

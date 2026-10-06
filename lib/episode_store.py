@@ -16,6 +16,7 @@ Design rules (per task constraints):
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import shutil
@@ -26,8 +27,14 @@ from typing import Any, Optional
 import jsonschema
 
 from lib.factory_stages import (
+    APPROVAL_GATES,
     FACTORY_STAGES,
+    LEGACY_MERGE_GROUPS,
+    LEGACY_STAGE_MAP,
+    ApprovalGateError,
     IllegalTransitionError,
+    StageModelError,
+    requires_approval,
     validate_transition,
 )
 from lib.paths import PROJECTS_DIR
@@ -136,10 +143,21 @@ class EpisodeStore:
             raise IllegalTransitionError(f"Unknown factory stage: {stage!r}")
         cur = doc["stages"][stage]
         validate_transition(stage, cur["state"], to_state)
+        frm = cur["state"]
         if to_state == "FAILED" and not (failure_reason or cur.get("failure_reason")):
             raise ValueError(
                 f"Stage {stage!r} -> FAILED requires a failure_reason "
                 "(clear failure reason is mandatory)."
+            )
+        if (
+            to_state == "DONE"
+            and requires_approval(stage)
+            and not cur.get("approved_at")
+        ):
+            raise ApprovalGateError(
+                f"Stage {stage!r} -> DONE blocked: human approval required "
+                "(APPROVED first). Publish is disabled until human_review "
+                "is APPROVED."
             )
         now = _utcnow()
         cur["state"] = to_state
@@ -158,6 +176,10 @@ class EpisodeStore:
             # A successful move clears a prior failure reason; retry starts clean.
             if to_state == "RUNNING":
                 cur["failure_reason"] = None
+                if frm != "RUNNING":
+                    # (Re)work needs fresh sign-off: a stale APPROVED must
+                    # never carry a reworked stage to DONE.
+                    cur["approved_at"] = None
         if provider is not None:
             cur["provider"] = provider  # label only, never imported
         doc["updated_at"] = now
@@ -235,3 +257,142 @@ class EpisodeStore:
             shutil.copyfile(self.episode_path, target)
         except OSError:
             pass  # archival is best-effort; the atomic replace below still runs
+
+
+# -- legacy migration -------------------------------------------------
+
+_STATE_RANK = {
+    "PENDING": 0,
+    "RUNNING": 1,
+    "REVIEW": 2,
+    "APPROVED": 3,
+    "DONE": 4,
+}
+
+
+def _merge_evidence(entries: list[tuple[str, dict[str, Any]]]) -> dict[str, Any]:
+    """Merge legacy sources/facts/claims entries into one evidence stage.
+
+    Deterministic, fail-closed rules:
+      - any member FAILED (and bundle not fully DONE) => FAILED, reasons joined
+      - all members DONE => DONE
+      - otherwise the least-advanced member state (never over-claim)
+    Artifacts are preserved under per-member sub-keys so nothing is lost.
+    """
+    now = _utcnow()
+    states = [e.get("state", "PENDING") for _, e in entries]
+    reasons = [
+        str(e.get("failure_reason") or "").strip()
+        for _, e in entries
+        if e.get("state") == "FAILED"
+    ]
+    reasons = [r for r in reasons if r]
+    if any(s == "FAILED" for s in states):
+        state = "FAILED"
+        failure_reason: Optional[str] = "; ".join(reasons) or "legacy stage failure"
+    elif states and all(s == "DONE" for s in states):
+        state = "DONE"
+        failure_reason = None
+    else:
+        ranked = sorted(states, key=lambda s: _STATE_RANK.get(s, 0))
+        state = ranked[0] if ranked else "PENDING"
+        failure_reason = None
+
+    def _extreme(key: str, *, earliest: bool) -> Optional[str]:
+        vals = [e.get(key) for _, e in entries if e.get(key)]
+        if not vals:
+            return None
+        return min(vals) if earliest else max(vals)  # type: ignore[return-value]
+
+    updated = _extreme("updated_at", earliest=False) or now
+    merged: dict[str, Any] = {
+        "state": state,
+        "artifact_version": max(
+            [int(e.get("artifact_version", 0)) for _, e in entries] + [0]
+        ),
+        "artifact": {
+            name: copy.deepcopy(e.get("artifact", {})) for name, e in entries
+        },
+        "failure_reason": failure_reason,
+        "provider": next(
+            (e.get("provider") for _, e in entries if e.get("provider")), None
+        ),
+        "started_at": None
+        if state == "PENDING"
+        else (_extreme("started_at", earliest=True) or updated),
+        "updated_at": updated,
+        "reviewed_at": _extreme("reviewed_at", earliest=False)
+        if state in ("REVIEW", "APPROVED", "DONE")
+        else None,
+        "approved_at": _extreme("approved_at", earliest=False)
+        if state in ("APPROVED", "DONE")
+        else None,
+        "done_at": _extreme("done_at", earliest=False)
+        if state == "DONE"
+        else None,
+    }
+    return merged
+
+
+def migrate_legacy_doc(doc: dict[str, Any]) -> dict[str, Any]:
+    """Migrate a pre-canonical episode document to the canonical stage model.
+
+    Pure function (no I/O): maps legacy stage IDs via LEGACY_STAGE_MAP,
+    merges sources/facts/claims into evidence (artifacts preserved under
+    sub-keys), renames metadata -> packaging, fills stages with no legacy
+    equivalent (footage_intelligence, packaging-without-metadata,
+    human_review) as blank, and backfills approved_at for gated stages that
+    are already APPROVED/DONE (pre-gate documents carry no approval stamp).
+    Already-canonical documents pass through (missing stages filled blank).
+    Unknown stage IDs raise StageModelError (fail closed). The result always
+    validates against the canonical envelope schema.
+    """
+    if not isinstance(doc, dict) or not isinstance(doc.get("stages"), dict):
+        raise StageModelError("Episode document must have a 'stages' object.")
+    legacy_stages: dict[str, Any] = doc["stages"]
+    unknown = [
+        k
+        for k in legacy_stages
+        if k not in LEGACY_STAGE_MAP and k not in FACTORY_STAGES
+    ]
+    if unknown:
+        raise StageModelError(
+            f"Unknown stage IDs (neither legacy nor canonical): {unknown}"
+        )
+    now = _utcnow()
+    merge_members = {
+        m for grp in LEGACY_MERGE_GROUPS.values() for m in grp
+    }
+    new_stages: dict[str, Any] = {
+        name: _blank_stage(now) for name in FACTORY_STAGES
+    }
+    # Canonical IDs already present pass straight through with artifacts
+    # intact (covers stages with no legacy equivalent: footage_intelligence,
+    # human_review, and packaging-without-metadata).
+    for name in FACTORY_STAGES:
+        if name in legacy_stages:
+            new_stages[name] = copy.deepcopy(legacy_stages[name])
+    # Legacy renames (identity entries were handled above; merge members
+    # below).
+    for legacy_id, canonical_id in LEGACY_STAGE_MAP.items():
+        if legacy_id in merge_members or legacy_id == canonical_id:
+            continue
+        if legacy_id in legacy_stages:
+            new_stages[canonical_id] = copy.deepcopy(legacy_stages[legacy_id])
+    # many-to-one merges.
+    for canonical_id, members in LEGACY_MERGE_GROUPS.items():
+        present = [
+            (m, copy.deepcopy(legacy_stages[m]))
+            for m in members
+            if m in legacy_stages
+        ]
+        if present:
+            new_stages[canonical_id] = _merge_evidence(present)
+    # approval backfill: pre-gate documents have no approved_at stamp.
+    for name in APPROVAL_GATES:
+        st = new_stages[name]
+        if st.get("state") in ("APPROVED", "DONE") and not st.get("approved_at"):
+            st["approved_at"] = st.get("done_at") or st.get("updated_at") or now
+    out = {**doc, "stages": new_stages, "updated_at": now}
+    jsonschema.validate(instance=out, schema=_load_episode_schema())
+    return out

@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 
 from lib.episode_store import EpisodeStore
-from lib.factory_stages import FACTORY_STAGES
+from lib.factory_stages import APPROVAL_GATES, FACTORY_STAGES
 
 SCRIPT = {
     "version": "1.0",
@@ -65,8 +65,11 @@ def _drive_full_lifecycle(store: EpisodeStore):
         payload = PAYLOADS.get(stage, {"note": f"{stage} payload"})
         store.set_artifact(stage, payload)
         # editorial/timeline share the EDIT payload shape; both validate as edit_decisions
-        store.transition(stage, "REVIEW")
-        store.transition(stage, "APPROVED")
+        if stage in APPROVAL_GATES:
+            # Gated stages must pass through APPROVED: DONE without prior
+            # approval is an ApprovalGateError (publish/human_review included).
+            store.transition(stage, "REVIEW")
+            store.transition(stage, "APPROVED")
         store.transition(stage, "DONE")
 
 
@@ -86,22 +89,24 @@ def test_full_lifecycle_all_done(tmp_path):
 def test_crash_resume_from_disk(tmp_path):
     store = EpisodeStore("ep-int-002", projects_dir=tmp_path)
     store.init("Crash Ep")
-    for stage in ("topic", "sources"):
+    for stage in ("topic", "evidence"):
         store.transition(stage, "RUNNING")
         store.set_artifact(stage, {"note": stage})
+        if stage in APPROVAL_GATES:
+            store.transition(stage, "REVIEW")
+            store.transition(stage, "APPROVED")
         store.transition(stage, "DONE")
-    store.transition("research", "RUNNING")
-    store.set_artifact("research", RESEARCH)
-    store.transition("research", "DONE")
-    store.transition("facts", "RUNNING")  # <- "process killed" here
+    store.transition("script", "RUNNING")  # <- "process killed" here
     # fresh handle = post-crash process
     resumed = EpisodeStore("ep-int-002", projects_dir=tmp_path)
     status = resumed.status()
     assert status["topic"] == "DONE"
-    assert status["facts"] == "RUNNING"  # interrupted stage resumes, not restarts
-    resumed.set_artifact("facts", {"items": []})
-    resumed.transition("facts", "DONE")
-    assert resumed.status()["facts"] == "DONE"
+    assert status["script"] == "RUNNING"  # interrupted stage resumes, not restarts
+    resumed.set_artifact("script", SCRIPT)
+    resumed.transition("script", "REVIEW")
+    resumed.transition("script", "APPROVED")
+    resumed.transition("script", "DONE")
+    assert resumed.status()["script"] == "DONE"
 
 
 def test_failure_retry_preserves_history_and_versions(tmp_path):
@@ -112,6 +117,9 @@ def test_failure_retry_preserves_history_and_versions(tmp_path):
     assert store.status()["footage"] == "FAILED"
     store.transition("footage", "RUNNING")
     store.set_artifact("footage", MANIFEST)
+    # footage is gated: retry must still pass through approval before DONE
+    store.transition("footage", "REVIEW")
+    store.transition("footage", "APPROVED")
     store.transition("footage", "DONE")
     hist = list((tmp_path / "ep-int-003" / "history").glob("episode_*.json"))
     assert len(hist) >= 3

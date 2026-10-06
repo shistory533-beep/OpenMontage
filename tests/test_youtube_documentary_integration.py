@@ -55,18 +55,25 @@ PUBLISH = {"version": "1.0", "entries": []}
 
 CHAIN = [("topic", {"brief": BRIEF}, True),
          ("research", {"research_brief": RESEARCH}, False),
+         ("evidence", {"evidence_bundle": {"sources": [], "facts": [],
+                                           "claims": []}}, False),
          ("script", {"script": SCRIPT}, True),
          ("fact_check", {"factcheck_report": {"status": "passed"}}, False),
          ("storyboard", {"scene_plan": SCENES}, True),
          ("narration", {"narration_manifest": {"tracks": 6}}, False),
          ("footage", {"asset_manifest": MANIFEST_ART}, True),
+         ("footage_intelligence", {"footage_report": {"verdicts": []}},
+          False),
          ("editorial", {"edit_decisions": EDIT}, False),
          ("timeline", {"edit_decisions": EDIT}, False),
          ("audio", {"audio_mix": {"loudness_db": -16}}, False),
          ("render", {"render_report": REPORT}, False),
          ("qa", {"final_review": QA}, False),
          ("packaging", {"package_bundle": {"path": "exports/x"}}, False),
-         ("human_review", {"review_decision": {"verdict": "APPROVED"}}, True)]
+         ("thumbnail", {"thumbnail_set": {"concept": "river at dawn"}},
+          False),
+         ("human_review", {"review_decision": {"verdict": "APPROVED"}},
+          True)]
 
 
 def _write_chain(pdir: Path, pid: str, upto: str | None = None,
@@ -111,7 +118,7 @@ def test_publish_blocked_then_allowed(tmp_path):
 
     pid = "ydoc-int-003"
     init_project(pid, title="T", pipeline_type=PIPE, pipeline_dir=tmp_path)
-    _write_chain(tmp_path, pid, upto="packaging")
+    _write_chain(tmp_path, pid, upto="thumbnail")
     m = load_pipeline(PIPE)
     with pytest.raises(PublishBlockedError):
         assert_stage_ready(m, "publish", read_checkpoints(tmp_path, pid, m))
@@ -122,4 +129,8 @@ def test_publish_blocked_then_allowed(tmp_path):
     write_checkpoint(tmp_path, pid, "publish", "completed",
                      {"publish_log": PUBLISH}, pipeline_type=PIPE,
                      human_approved=True)
+    assert get_next_stage(tmp_path, pid, PIPE) == "analytics"  # terminal stage
+    write_checkpoint(tmp_path, pid, "analytics",
+                     "completed", {"analytics_report": {"metrics": {}}},
+                     pipeline_type=PIPE)
     assert get_next_stage(tmp_path, pid, PIPE) is None  # run complete

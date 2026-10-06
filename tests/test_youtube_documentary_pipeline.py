@@ -14,9 +14,11 @@ from lib.pipeline_guard import (
 )
 from lib.pipeline_loader import get_stage_order, load_pipeline
 
-EXPECTED_ORDER = ["topic", "research", "script", "fact_check", "storyboard",
-                  "narration", "footage", "editorial", "timeline", "audio",
-                  "render", "qa", "packaging", "human_review", "publish"]
+EXPECTED_ORDER = ["topic", "research", "evidence", "script", "fact_check",
+                  "storyboard", "narration", "footage",
+                  "footage_intelligence", "editorial", "timeline", "audio",
+                  "render", "qa", "packaging", "thumbnail", "human_review",
+                  "publish", "analytics"]
 
 
 def manifest():
@@ -67,17 +69,21 @@ def full_chain(extra=None):
     cps = {
         "topic": cp(artifacts={"brief": {}}),
         "research": cp(artifacts={"research_brief": {}}),
+        "evidence": cp(artifacts={"evidence_bundle": {}}, approved=False),
         "script": cp(artifacts={"script": {}}),
         "fact_check": cp(artifacts={"factcheck_report": {}}, approved=False),
         "storyboard": cp(artifacts={"scene_plan": {}}),
         "narration": cp(artifacts={"narration_manifest": {}}, approved=False),
         "footage": cp(artifacts={"asset_manifest": {}}),
+        "footage_intelligence": cp(artifacts={"footage_report": {}},
+                                   approved=False),
         "editorial": cp(artifacts={"edit_decisions": {}}),
         "timeline": cp(artifacts={"edit_decisions": {}}),
         "audio": cp(artifacts={"audio_mix": {}}, approved=False),
         "render": cp(artifacts={"render_report": {}}, approved=False),
         "qa": cp(artifacts={"final_review": {}}, approved=False),
         "packaging": cp(artifacts={"package_bundle": {}}, approved=False),
+        "thumbnail": cp(artifacts={"thumbnail_set": {}}, approved=False),
         "human_review": cp(artifacts={"review_decision": {}}),
     }
     if extra:
@@ -136,7 +142,10 @@ def test_invalid_stage_order_rejected():
 def test_predecessors_helper():
     m = manifest()
     assert predecessors(m, "topic") == []
-    assert predecessors(m, "publish") == EXPECTED_ORDER[:-1]
+    assert predecessors(m, "evidence") == ["topic", "research"]
+    assert predecessors(m, "publish") == [s for s in EXPECTED_ORDER
+                                          if s not in ("publish", "analytics")]
+    assert predecessors(m, "analytics") == EXPECTED_ORDER[:-1]
     with pytest.raises(PrerequisiteError):
         predecessors(m, "producer")  # explicitly out of scope
 
@@ -158,5 +167,5 @@ def test_next_pending_resume_pointer():
     assert next_pending(m, {}) == "topic"
     cps = {"topic": cp(artifacts={"brief": {}}),
            "research": cp(artifacts={"research_brief": {}})}
-    assert next_pending(m, cps) == "script"
+    assert next_pending(m, cps) == "evidence"
     assert next_pending(m, full_chain()) == "publish"
