@@ -1,0 +1,48 @@
+[
+  {
+    "id": "c1",
+    "statement": "The canyon reaches 500 feet deep.",
+    "claim_type": "factual",
+    "fact_ids": [
+      "f1"
+    ],
+    "source_ids": [
+      "https://www.usgs.gov/river-data/crooked",
+      "https://doi.org/10.1234/basalt-incision"
+    ],
+    "critical": true
+  },
+  {
+    "id": "c2",
+    "statement": "The basalt is 5.3 million years old.",
+    "claim_type": "factual",
+    "fact_ids": [
+      "f2"
+    ],
+    "source_ids": [
+      "https://www.usgs.gov/river-data/crooked"
+    ]
+  },
+  {
+    "id": "c3",
+    "statement": "It is the most beautiful gorge in Oregon.",
+    "claim_type": "opinion",
+    "fact_ids": [
+      "f4"
+    ],
+    "source_ids": [
+      "https://example-news.com/canyon-story"
+    ]
+  },
+  {
+    "id": "c4",
+    "statement": "Widening may involve groundwater sapping.",
+    "claim_type": "factual",
+    "fact_ids": [
+      "f5"
+    ],
+    "source_ids": [
+      "https://doi.org/10.1234/basalt-incision"
+    ]
+  }
+]

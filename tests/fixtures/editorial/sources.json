@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Crooked River discharge data",
+    "url": "https://www.usgs.gov/river-data/crooked",
+    "publisher": "USGS",
+    "date": "2024-05-01",
+    "source_type": "government",
+    "retrieved_at": "2026-01-01T00:00:00+00:00",
+    "notes": ""
+  },
+  {
+    "title": "Basalt canyon incision rates",
+    "url": "https://doi.org/10.1234/basalt-incision",
+    "publisher": "Journal of Geology",
+    "date": "2021-03-15",
+    "source_type": "academic",
+    "retrieved_at": "2026-01-01T00:00:00+00:00",
+    "notes": ""
+  },
+  {
+    "title": "Canyon story",
+    "url": "https://example-news.com/canyon-story",
+    "publisher": "Example News",
+    "date": "",
+    "source_type": "news",
+    "retrieved_at": "2026-01-01T00:00:00+00:00",
+    "notes": ""
+  }
+]

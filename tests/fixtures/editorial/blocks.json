@@ -1,0 +1,110 @@
+[
+  {
+    "id": "b1",
+    "chapter_id": "ch1",
+    "beat": "hook",
+    "text": "Five hundred feet below the rim, the Crooked River keeps carving.",
+    "claim_ids": [
+      "c1"
+    ],
+    "pacing_intent": "cold open",
+    "emotional_intent": "awe",
+    "visual_intent": "aerial canyon"
+  },
+  {
+    "id": "b2",
+    "chapter_id": "ch1",
+    "beat": "question",
+    "text": "How did water cut through 5.3-million-year-old basalt?",
+    "claim_ids": [
+      "c2"
+    ],
+    "pacing_intent": "question",
+    "emotional_intent": "curiosity",
+    "visual_intent": "river close-up"
+  },
+  {
+    "id": "b3",
+    "chapter_id": "ch1",
+    "beat": "setup",
+    "text": "The basalt here is 5.3 million years old, laid down by ancient floods.",
+    "claim_ids": [
+      "c2"
+    ],
+    "pacing_intent": "steady",
+    "emotional_intent": "wonder",
+    "visual_intent": "basalt cliffs"
+  },
+  {
+    "id": "b4",
+    "chapter_id": "ch2",
+    "beat": "discovery",
+    "text": "Surveys confirm the gorge reaches 500 feet at its deepest point.",
+    "claim_ids": [
+      "c1"
+    ],
+    "pacing_intent": "reveal",
+    "emotional_intent": "amazement",
+    "visual_intent": "depth comparison"
+  },
+  {
+    "id": "b5",
+    "chapter_id": "ch2",
+    "beat": "escalation",
+    "text": "Floods may have widened the upper canyon, though experts still debate the details.",
+    "claim_ids": [
+      "c4"
+    ],
+    "pacing_intent": "tension",
+    "emotional_intent": "unease",
+    "visual_intent": "flood waters"
+  },
+  {
+    "id": "b6",
+    "chapter_id": "ch2",
+    "beat": "mechanism",
+    "text": "Over 5.3 million years, steady erosion did the slow work.",
+    "claim_ids": [
+      "c2"
+    ],
+    "pacing_intent": "explanatory",
+    "emotional_intent": "understanding",
+    "visual_intent": "time-lapse strata"
+  },
+  {
+    "id": "b7",
+    "chapter_id": "ch3",
+    "beat": "consequence",
+    "text": "Today the 500-foot walls shelter rare plants and nesting eagles.",
+    "claim_ids": [
+      "c1"
+    ],
+    "pacing_intent": "grounding",
+    "emotional_intent": "care",
+    "visual_intent": "canyon wildlife"
+  },
+  {
+    "id": "b8",
+    "chapter_id": "ch3",
+    "beat": "transformation",
+    "text": "What water built, water may yet reshape in seasons to come.",
+    "claim_ids": [
+      "c4"
+    ],
+    "pacing_intent": "reflective",
+    "emotional_intent": "hope",
+    "visual_intent": "river sunrise"
+  },
+  {
+    "id": "b9",
+    "chapter_id": "ch3",
+    "beat": "payoff",
+    "text": "Deep time, written in stone \u2014 our most beautiful gorge.",
+    "claim_ids": [
+      "c3"
+    ],
+    "pacing_intent": "landing",
+    "emotional_intent": "awe",
+    "visual_intent": "wide sunset river"
+  }
+]

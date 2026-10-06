@@ -1,0 +1,10 @@
+[
+  {
+    "id": "q1",
+    "question": "What widened the upper canyon?",
+    "why_matters": "mechanism beat depends on it",
+    "related_fact_ids": [
+      "f5"
+    ]
+  }
+]

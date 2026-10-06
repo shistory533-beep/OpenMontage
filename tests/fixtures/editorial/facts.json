@@ -1,0 +1,54 @@
+[
+  {
+    "id": "f1",
+    "statement": "The canyon is 500 feet deep.",
+    "statement_type": "fact",
+    "source_ids": [
+      "https://www.usgs.gov/river-data/crooked",
+      "https://doi.org/10.1234/basalt-incision"
+    ],
+    "subject_key": "canyon depth",
+    "numeric_value": 500.0,
+    "numeric_unit": "feet",
+    "date_value": ""
+  },
+  {
+    "id": "f2",
+    "statement": "The basalt is 5.3 million years old.",
+    "statement_type": "fact",
+    "source_ids": [
+      "https://www.usgs.gov/river-data/crooked"
+    ],
+    "subject_key": "basalt age",
+    "numeric_value": 5.3,
+    "numeric_unit": "million years",
+    "date_value": ""
+  },
+  {
+    "id": "f3",
+    "statement": "Incision accelerated after the Pleistocene.",
+    "statement_type": "inference",
+    "source_ids": [
+      "https://doi.org/10.1234/basalt-incision"
+    ],
+    "subject_key": "incision timing"
+  },
+  {
+    "id": "f4",
+    "statement": "It is the most beautiful gorge in Oregon.",
+    "statement_type": "opinion",
+    "source_ids": [
+      "https://example-news.com/canyon-story"
+    ],
+    "subject_key": "beauty"
+  },
+  {
+    "id": "f5",
+    "statement": "Groundwater sapping role remains debated.",
+    "statement_type": "unresolved",
+    "source_ids": [
+      "https://doi.org/10.1234/basalt-incision"
+    ],
+    "subject_key": "widening"
+  }
+]
