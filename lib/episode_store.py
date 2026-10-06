@@ -299,10 +299,12 @@ def _merge_evidence(entries: list[tuple[str, dict[str, Any]]]) -> dict[str, Any]
         failure_reason = None
 
     def _extreme(key: str, *, earliest: bool) -> Optional[str]:
-        vals = [e.get(key) for _, e in entries if e.get(key)]
+        vals = sorted(
+            str(v) for _, e in entries if (v := e.get(key)) is not None
+        )
         if not vals:
             return None
-        return min(vals) if earliest else max(vals)  # type: ignore[return-value]
+        return vals[0] if earliest else vals[-1]
 
     updated = _extreme("updated_at", earliest=False) or now
     merged: dict[str, Any] = {
