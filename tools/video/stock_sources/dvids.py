@@ -68,10 +68,19 @@ class DvidsSource:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         with requests.get(candidate.download_url, stream=True, timeout=120) as r:
             r.raise_for_status()
+            expected = r.headers.get("Content-Length")
+            written = 0
             with open(out_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=1 << 16):
                     if chunk:
+                        written += len(chunk)
                         f.write(chunk)
+            if expected is not None and written < int(expected):
+                # Partial download: truncated bytes must never enter the vault.
+                out_path.unlink(missing_ok=True)
+                raise ValueError(
+                    f"partial download for {candidate.clip_id}: "
+                    f"{written} of {expected} bytes")
         return out_path
 
 

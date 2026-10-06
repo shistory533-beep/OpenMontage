@@ -20,6 +20,7 @@ class NormalizedAsset:
     provider: str = ""
     source_id: str = ""
     title: str = ""
+    description: str = ""     # free-text description when the source exposes one
     source_url: str = ""
     download_url: str = ""
     duration: float = 0.0
@@ -41,6 +42,18 @@ class NormalizedAsset:
     def asset_id(self) -> str:
         return f"{self.provider}_{self.source_id}"
 
+    @property
+    def media_type(self) -> str:
+        """Media-type alias for kind ("video" | "image")."""
+        return self.kind
+
+    @property
+    def orientation(self) -> str:
+        """Derived from dimensions: landscape | portrait | square | unknown."""
+        from lib.footage_hub.verify import orientation_of
+
+        return orientation_of(self.width, self.height)
+
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
@@ -51,7 +64,7 @@ class NormalizedAsset:
 
     @classmethod
     def required_fields(cls) -> list[str]:
-        return ["provider", "source_id", "title", "source_url",
+        return ["provider", "source_id", "title", "description", "source_url",
                 "download_url", "duration", "width", "height", "fps",
                 "format", "creator", "license", "rights_status",
                 "attribution", "retrieved_at", "checksum"]

@@ -50,7 +50,8 @@ class FootageHub(BaseTool):
     agent_skills = []
 
     capabilities = ["provider_search", "rights_filtering", "deterministic_ranking",
-                    "content_addressed_download"]
+                    "content_addressed_download", "rights_modes",
+                    "media_verification", "resolution_filters"]
     supports = {"multi_source": True, "video_and_image": True,
                 "rights_policy": True, "dedupe_by_checksum": True,
                 "generative_fallback": False}
@@ -74,6 +75,19 @@ class FootageHub(BaseTool):
             "per_provider": {"type": "integer", "default": 10,
                              "minimum": 1, "maximum": 50},
             "require_verified_rights": {"type": "boolean", "default": False},
+            "rights_mode": {"type": "string",
+                            "enum": ["strict", "permissive", "audit-only"],
+                            "default": "strict",
+                            "description": "Production rights policy. strict "
+                                           "(default): verified rights only."},
+            "min_width": {"type": "integer", "minimum": 1,
+                          "description": "Resolution floor in pixels."},
+            "min_duration": {"type": "number", "minimum": 0,
+                             "description": "Clip duration floor in seconds."},
+            "max_duration": {"type": "number", "minimum": 0,
+                             "description": "Clip duration ceiling in seconds."},
+            "orientation": {"type": "string",
+                            "enum": ["landscape", "portrait", "square", "any"]},
             "vault_dir": {"type": "string"},
             "asset": {"type": "object",
                       "description": "NormalizedAsset dict from a prior search."},
@@ -121,6 +135,11 @@ class FootageHub(BaseTool):
                     per_provider=int(inputs.get("per_provider", 10)),
                     require_verified_rights=bool(
                         inputs.get("require_verified_rights", False)),
+                    rights_mode=inputs.get("rights_mode", "strict"),
+                    min_width=inputs.get("min_width"),
+                    min_duration=inputs.get("min_duration"),
+                    max_duration=inputs.get("max_duration"),
+                    orientation=inputs.get("orientation"),
                 )
                 return ToolResult(
                     success=True,

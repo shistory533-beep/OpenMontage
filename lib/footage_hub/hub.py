@@ -30,7 +30,9 @@ from pathlib import Path
 from typing import Any, Optional
 
 from lib.footage_hub.contracts import NormalizedAsset
-from lib.footage_hub.rights import RightsStatus, classify, validate
+from lib.footage_hub.rights import RightsMode, RightsStatus, classify, validate
+from lib.footage_hub.rights import validate_with_mode
+from lib.footage_hub.verify import MediaCorruptError, probe_file
 
 
 @dataclass
@@ -73,6 +75,7 @@ def normalize_candidate(candidate: Any) -> NormalizedAsset:
         provider=getattr(candidate, "source", ""),
         source_id=getattr(candidate, "source_id", ""),
         title=title,
+        description=str(extra.get("description", "") or ""),
         source_url=getattr(candidate, "source_url", ""),
         download_url=dl,
         duration=float(getattr(candidate, "duration", 0.0) or 0.0),
@@ -98,9 +101,26 @@ def search(
     providers: Optional[list[str]] = None,
     per_provider: int = 10,
     require_verified_rights: bool = False,
+    rights_mode: str = RightsMode.STRICT,
+    min_width: Optional[int] = None,
+    min_duration: Optional[float] = None,
+    max_duration: Optional[float] = None,
+    orientation: Optional[str] = None,
 ) -> SearchResult:
-    """Fan out across providers with per-provider failure isolation."""
+    """Fan out across providers with per-provider failure isolation.
+
+    Rights default to strict production policy (verified rights only);
+    pass rights_mode="permissive"/"audit-only" to relax explicitly.
+    Resolution/duration/orientation constraints are forwarded to adapters
+    via SearchFilters AND enforced post-normalization (adapters may
+    ignore filters they don't understand).
+    """
     from tools.video.stock_sources import SearchFilters, all_sources
+
+    mode = RightsMode.STRICT if require_verified_rights else rights_mode
+    if mode not in RightsMode.all():
+        return SearchResult(failures=[ProviderFailure(
+            "*", "search", f"unknown rights mode {mode!r}")])
 
     wanted = {s.name: s for s in all_sources()}
     if providers:
@@ -119,7 +139,11 @@ def search(
             if not src.is_available():
                 continue
             result.resolved_providers.append(src.name)
-            filters = SearchFilters(kind=kind, per_page=per_provider)
+            filters = SearchFilters(kind=kind, per_page=per_provider,
+                                    min_duration=min_duration,
+                                    max_duration=max_duration,
+                                    orientation=orientation,
+                                    min_width=min_width)
             for cand in src.search(query, filters):
                 try:
                     asset = normalize_candidate(cand)
@@ -128,7 +152,14 @@ def search(
                         src.name, "search",
                         f"normalize failed: {type(exc).__name__}: {exc}"))
                     continue
-                ok, _ = validate(asset, require_verified=require_verified_rights)
+                if kind != "any" and asset.kind != kind:
+                    continue  # image/video media type enforced, not assumed
+                if not _passes_filters(asset, min_width=min_width,
+                                       min_duration=min_duration,
+                                       max_duration=max_duration,
+                                       orientation=orientation):
+                    continue
+                ok, _ = validate_with_mode(asset, mode)
                 if ok:
                     result.assets.append(asset)
         except Exception as exc:
@@ -136,6 +167,49 @@ def search(
                 src.name, "search", f"{type(exc).__name__}: {exc}"))
     result.assets = rank_assets(query, result.assets)
     return result
+
+
+def _passes_filters(asset: NormalizedAsset, *,
+                    min_width: Optional[int] = None,
+                    min_duration: Optional[float] = None,
+                    max_duration: Optional[float] = None,
+                    orientation: Optional[str] = None) -> bool:
+    """Post-normalization enforcement (adapters may ignore SearchFilters)."""
+    if min_width is not None and (asset.width or 0) < min_width:
+        return False
+    if asset.kind == "video":
+        if min_duration is not None and (asset.duration or 0) < min_duration:
+            return False
+        if max_duration is not None and (asset.duration or 0) > max_duration:
+            return False
+    if orientation not in (None, "any"):
+        if orientation not in ("landscape", "portrait", "square"):
+            return False
+        if asset.orientation != orientation:
+            # Unknown dimensions cannot satisfy an explicit orientation
+            # demand (fail closed).
+            return False
+    return True
+
+
+def coverage_verdict(*, found: bool, slot_match: bool = True,
+                     rights_ok: bool = True, media_ok: bool = True) -> str:
+    """Slot-coverage verdict for footage intelligence reporting.
+
+    MISSING — no candidate acquired for the slot (gap, never filled
+      synthetically).
+    WRONG   — candidates exist but none match the slot intent/kind.
+    WEAK    — a match exists but rights are unverified or the media is
+      unverified/corrupt (needs re-acquisition or human clearance).
+    PASS    — matched, rights-verified, media-verified.
+    """
+    if not found:
+        return "MISSING"
+    if not slot_match:
+        return "WRONG"
+    if not (rights_ok and media_ok):
+        return "WEAK"
+    return "PASS"
 
 
 def rank_assets(query: str, assets: list[NormalizedAsset]) -> list[NormalizedAsset]:
@@ -185,20 +259,44 @@ class DownloadManager:
     # -- public ------------------------------------------------------
 
     def download(self, asset: NormalizedAsset,
-                 adapter: Any) -> tuple[NormalizedAsset, bool]:
+                 adapter: Any, *,
+                 max_retries: int = 2,
+                 retry_backoff_seconds: float = 0.5
+                 ) -> tuple[NormalizedAsset, bool]:
         """Download one asset. Returns (asset_with_checksum, is_new_blob).
 
-        Raises on download failure (caller decides retry/abort) — but never
-        substitutes other content: failure propagates as failure.
+        Transient transport errors (OSError family, incl. requests network
+        errors) retry with linear backoff; anything else — empty file,
+        corrupt media, adapter bugs — fails fast with no retry. Either way
+        failure propagates as failure: never substituted, never silenced.
         """
         from lib.footage_hub.registry import get_adapter  # noqa (kept local: registry seam)
 
         _ = get_adapter  # adapter passed in; registry remains the lookup path
+        attempt = 0
+        while True:
+            try:
+                return self._download_once(asset, adapter)
+            except OSError:
+                if attempt >= max_retries:
+                    raise
+                attempt += 1
+                time.sleep(retry_backoff_seconds * attempt)
+
+    def _download_once(self, asset: NormalizedAsset,
+                       adapter: Any) -> tuple[NormalizedAsset, bool]:
         tmp = self.blobs_dir / f".tmp_{asset.asset_id}_{os.getpid()}"
         try:
             adapter.download(_to_candidate(asset), tmp)
             if not tmp.exists() or tmp.stat().st_size < 1024:
                 raise ValueError(f"download produced empty file for {asset.asset_id}")
+            # Media verification (best available: ffprobe > ffmpeg parse >
+            # stdlib sniff). Proven-corrupt bytes raise MediaCorruptError
+            # (fail closed, no retry); unrecognized-but-unproven bytes are
+            # recorded as unverified and proceed — unknown != corrupt.
+            report = probe_file(tmp, kind=asset.kind)
+            asset.extra["verification"] = report
+            self._enrich_from_probe(asset, report)
             checksum = sha256_file(tmp)
             index = self._read_index()
             if checksum in index:
@@ -229,6 +327,29 @@ class DownloadManager:
                 pass
 
     # -- internals ---------------------------------------------------
+
+    @staticmethod
+    def _enrich_from_probe(asset: NormalizedAsset,
+                           report: dict[str, Any]) -> None:
+        """Fill unknown dimensions from measured probe values.
+
+        Only fills fields the provider left at zero — provider metadata is
+        never overwritten, measured values are additive enrichment.
+        """
+        for field in ("width", "height"):
+            try:
+                measured = int(report.get(field) or 0)
+            except (TypeError, ValueError):
+                measured = 0
+            if not getattr(asset, field, 0) and measured > 0:
+                setattr(asset, field, measured)
+        for field in ("fps", "duration"):
+            try:
+                measured_f = float(report.get(field) or 0.0)
+            except (TypeError, ValueError):
+                measured_f = 0.0
+            if not getattr(asset, field, 0.0) and measured_f > 0:
+                setattr(asset, field, measured_f)
 
     def _read_index(self) -> dict[str, Any]:
         if not self.checksum_path.exists():
@@ -292,5 +413,5 @@ def manifest_rows(vault_dir: Path) -> list[dict[str, Any]]:
 
 
 __all__ = ["DownloadManager", "ProviderFailure", "SearchResult",
-           "manifest_rows", "normalize_candidate", "rank_assets",
-           "search", "sha256_file"]
+           "coverage_verdict", "manifest_rows", "normalize_candidate",
+           "rank_assets", "search", "sha256_file"]
