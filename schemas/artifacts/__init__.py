@@ -34,6 +34,11 @@ ARTIFACT_NAMES = [
     "evidence_bundle",
     "factcheck_report",
     "storyboard",
+    "package_bundle",
+    "preview_report",
+    "review_decision",
+    "review_package",
+    "thumbnail_set",
 ]
 
 

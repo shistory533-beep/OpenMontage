@@ -87,11 +87,23 @@ CHAIN = [("topic", {"brief": BRIEF}, True),
          ("audio", {"audio_mix": {"loudness_db": -16}}, False),
          ("render", {"render_report": REPORT}, False),
          ("qa", {"final_review": QA}, False),
-         ("packaging", {"package_bundle": {"path": "exports/x"}}, False),
+         ("packaging", {"package_bundle": {"version": "1.0",
+          "titles": {"candidates": [
+              {"title": f"Title {i}", "scores": {"clarity": 1.0},
+               "final_score": 0.8, "misleading_risk": 0.0,
+               "accepted": True} for i in range(5)]},
+          "chosen_title": "Title 0", "description": "d",
+          "chapters": [], "tags": {}, "subtitles": {},
+          "thumbnail": {"focal_subject": "river",
+                        "composition": "center", "text": "river",
+                        "contrast": "high", "visual_concept": "establishing",
+                        "reason": "fits"}}}, False),
          ("thumbnail", {"thumbnail_set": {"concept": "river at dawn"}},
           False),
-         ("human_review", {"review_decision": {"verdict": "APPROVED"}},
-          True)]
+         ("human_review", {"review_decision": {
+             "decision": "APPROVED", "approver": "tester",
+             "rationale": "ok", "timestamp": "2026-10-06T00:00:00+00:00",
+             "episode_id": "ydoc-int"}}, True)]
 
 
 def _write_chain(pdir: Path, pid: str, upto: str | None = None,
@@ -141,7 +153,11 @@ def test_publish_blocked_then_allowed(tmp_path):
     with pytest.raises(PublishBlockedError):
         assert_stage_ready(m, "publish", read_checkpoints(tmp_path, pid, m))
     write_checkpoint(tmp_path, pid, "human_review", "completed",
-                     {"review_decision": {"verdict": "APPROVED"}},
+                     {"review_decision": {
+                         "decision": "APPROVED", "approver": "tester",
+                         "rationale": "ok",
+                         "timestamp": "2026-10-06T00:00:00+00:00",
+                         "episode_id": pid}},
                      pipeline_type=PIPE, human_approved=True)
     assert_stage_ready(m, "publish", read_checkpoints(tmp_path, pid, m))
     write_checkpoint(tmp_path, pid, "publish", "completed",

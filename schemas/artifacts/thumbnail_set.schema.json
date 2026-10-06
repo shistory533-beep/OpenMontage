@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/thumbnail_set",
+  "title": "Thumbnail Set",
+  "description": "Thumbnail concept derived from the approved render: concept plus source frame reference.",
+  "type": "object",
+  "required": ["concept"],
+  "properties": {
+    "concept": { "type": "string", "minLength": 1 },
+    "source_frame": { "type": "string" },
+    "spec": { "type": "object" }
+  },
+  "additionalProperties": true
+}

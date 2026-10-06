@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/review_package",
+  "title": "Review Package",
+  "description": "Everything a human needs to judge an episode: video, script, storyboard, picks, QA, rights, narration, titles, thumbnail, description, chapters, subtitles.",
+  "type": "object",
+  "required": ["version", "episode_id", "video_path", "script", "qa_report", "status"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "episode_id": { "type": "string" },
+    "assembled_at": { "type": "string" },
+    "video_path": { "type": "string", "minLength": 1 },
+    "preview_path": { "type": "string" },
+    "script": { "type": "object" },
+    "storyboard": { "type": "object" },
+    "selected_footage": { "type": "array" },
+    "qa_report": { "type": "object", "minProperties": 1 },
+    "rights_summary": { "type": "object" },
+    "narration_status": { "type": "object" },
+    "title_candidates": { "type": "array" },
+    "thumbnail": { "type": "object" },
+    "description": { "type": "string" },
+    "chapters": { "type": "array" },
+    "subtitles_path": { "type": "string" },
+    "status": { "type": "string", "const": "READY_FOR_REVIEW" }
+  },
+  "additionalProperties": true
+}

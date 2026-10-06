@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/preview_report",
+  "title": "Preview Report",
+  "description": "Draft preview render record. ready_for_review requires an existing file with verified audio; a preview is never production-ready.",
+  "type": "object",
+  "required": ["version", "preview_path", "duration_seconds", "draft_timeline", "has_audio", "ready_for_review"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "preview_path": { "type": "string", "minLength": 1 },
+    "duration_seconds": { "type": "number", "minimum": 0 },
+    "resolution": { "type": "string" },
+    "draft_timeline": { "type": "boolean", "const": true },
+    "has_audio": { "type": "boolean" },
+    "narration_audio_verified": { "type": ["boolean", "null"] },
+    "ready_for_review": { "type": "boolean" },
+    "captions_path": { "type": "string" }
+  },
+  "additionalProperties": true
+}

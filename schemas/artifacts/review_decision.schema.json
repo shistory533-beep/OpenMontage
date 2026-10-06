@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/review_decision",
+  "title": "Review Decision",
+  "description": "Explicit human verdict on a review package. APPROVED requires identity + rationale; entries are append-only.",
+  "type": "object",
+  "required": ["decision", "approver", "rationale", "timestamp", "episode_id"],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": ["READY_FOR_REVIEW", "CHANGES_REQUESTED", "APPROVED", "REJECTED"]
+    },
+    "approver": { "type": "string" },
+    "rationale": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "episode_id": { "type": "string" },
+    "video_path": { "type": "string" }
+  },
+  "additionalProperties": false
+}
