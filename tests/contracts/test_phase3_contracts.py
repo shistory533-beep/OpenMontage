@@ -705,6 +705,7 @@ class TestCapabilityMetadata:
             "kling_official",
             "openai",
             "piper",
+            "tts_hub",
         }
 
 

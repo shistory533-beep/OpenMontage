@@ -1,0 +1,347 @@
+name: youtube-documentary
+version: "1.0"
+description: >
+  Long-form narrated YouTube documentary built from real footage.
+  Retrieval-first: research grounds the script, fact-check gates claims,
+  storyboard locks the visual promise, FootageHub acquires rights-tracked
+  clips, narration + edit + render follow, QA and packaging precede a
+  human-reviewed publish. No AI-generated footage filler at any stage.
+  Stage skills and the Producer Agent are future work; this manifest declares
+  the stage order, artifact contracts, tool menus, and approval gates only.
+category: documentary
+stability: beta
+default_checkpoint_policy: guided
+
+reference_input:
+  supported: false
+
+orchestration:
+  mode: executive-producer
+  budget_default_usd: 5.00
+  max_revisions_per_stage: 3
+  max_send_backs: 2
+  max_wall_time_minutes: 120
+
+extensions:
+  custom_scripts: true
+  custom_playbooks: true
+  custom_skills: true
+  custom_tools: false
+
+compatible_playbooks:
+  custom_allowed: true
+
+stages:
+  - name: topic
+    skill: pipelines/youtube-documentary/topic-director
+    produces:
+      - brief
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Single clear documentary question or thesis
+      - Target duration and audience are concrete
+    success_criteria:
+      - Schema-valid brief artifact
+      - "REQUIRED STATE: entry stage, no prerequisites"
+      - "FAILURE: invalid brief blocks research (fail closed, checkpoint failed with reason)"
+      - "RETRY: revise brief and re-checkpoint; history preserved"
+      - "CHECKPOINT BOUNDARY: completed only with human_approved=True"
+
+  - name: research
+    required_artifacts_in:
+      - brief
+    produces:
+      - research_brief
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Landscape mapped with sourced data points
+      - Angles grounded in specific findings
+    success_criteria:
+      - Schema-valid research_brief with data_points and sources
+      - "REQUIRED STATE: topic completed (brief present)"
+      - "FAILURE: missing brief blocks stage (fail closed)"
+      - "RETRY: re-run research; never mutate the approved brief in place"
+      - "CHECKPOINT BOUNDARY: research_brief stored in checkpoint artifacts"
+
+  - name: script
+    required_artifacts_in:
+      - research_brief
+    produces:
+      - script
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Every factual section carries a source_ref into research_brief
+      - Narration timing covers the target duration within 10%
+    success_criteria:
+      - Schema-valid script with source_ref on factual claims
+      - "REQUIRED STATE: research completed"
+      - "FAILURE: unsourced claims fail the stage; no silent pass"
+      - "RETRY: new script version; prior versions retained in history"
+      - "CHECKPOINT BOUNDARY: completed only with human_approved=True"
+
+  - name: fact_check
+    required_artifacts_in:
+      - script
+    produces:
+      - factcheck_report
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - "Every script claim has a verdict: verified, needs_source, or quarantined"
+      - Quarantined claims are cut from the script before storyboard
+    success_criteria:
+      - factcheck_report with zero open quarantines (or explicit waiver in decision_log)
+      - "REQUIRED STATE: script completed"
+      - "FAILURE: open quarantine blocks storyboard/narration (fail closed)"
+      - "RETRY: re-verify after script revision; report versioned per script version"
+      - "CHECKPOINT BOUNDARY: factcheck_report stored in checkpoint artifacts"
+
+  - name: storyboard
+    required_artifacts_in:
+      - script
+      - factcheck_report
+    produces:
+      - scene_plan
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Slot queries match the verified script; no claim without footage plan
+      - Hero holds and narration bindings are explicit
+    success_criteria:
+      - Schema-valid scene_plan covering full script duration
+      - "REQUIRED STATE: script completed AND factcheck_report passed"
+      - "FAILURE: unverified claims in board fail the stage"
+      - "RETRY: revised board; prior boards retained in history"
+      - "CHECKPOINT BOUNDARY: completed only with human_approved=True"
+
+  - name: narration
+    required_artifacts_in:
+      - script
+      - factcheck_report
+    produces:
+      - narration_manifest
+    required_tools:
+      - tts_selector
+    optional_tools:
+      - subtitle_gen
+    tools_available:
+      - tts_selector
+      - subtitle_gen
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Every script section has exactly one narration asset
+      - Voice and settings pinned for deterministic re-renders
+    success_criteria:
+      - narration_manifest with full script coverage
+      - "REQUIRED STATE: fact_check passed (narrate verified script only)"
+      - "FAILURE: missing sections fail the stage; never pad with silence silently"
+      - "RETRY: regenerate affected sections only; manifest versioned"
+      - "CHECKPOINT BOUNDARY: narration_manifest stored in checkpoint artifacts"
+
+  - name: footage
+    required_artifacts_in:
+      - scene_plan
+    produces:
+      - asset_manifest
+    optional_tools:
+      - footage_hub
+      - direct_clip_search
+      - corpus_builder
+      - clip_search
+    tools_available:
+      - footage_hub
+      - direct_clip_search
+      - corpus_builder
+      - clip_search
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - One picked clip per slot, no double-picks, full provenance retained
+      - No AI-generated filler anywhere in the manifest
+    success_criteria:
+      - Schema-valid asset_manifest with provenance per asset
+      - "REQUIRED STATE: storyboard completed"
+      - "FAILURE: uncovered slots fail the stage; gaps reported, never filled synthetically"
+      - "RETRY: extend acquisition with same slot queries; manifest versioned"
+      - "CHECKPOINT BOUNDARY: completed only with human_approved=True"
+
+  - name: editorial
+    required_artifacts_in:
+      - asset_manifest
+    produces:
+      - edit_decisions
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - All cuts reference manifest assets; narration segments cover script order
+      - render_runtime locked to remotion, renderer_family to documentary-montage
+    success_criteria:
+      - Schema-valid edit_decisions with no timeline gaps
+      - "REQUIRED STATE: footage completed"
+      - "FAILURE: dangling asset references fail the stage"
+      - "RETRY: revised decisions; prior versions retained in history"
+      - "CHECKPOINT BOUNDARY: edit_decisions stored in checkpoint artifacts"
+
+  - name: timeline
+    required_artifacts_in:
+      - edit_decisions
+    produces:
+      - edit_decisions
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Timeline IR refined but not replaced (same schema, new version)
+      - Chapters and narration sync validated against durations
+    success_criteria:
+      - Schema-valid edit_decisions; total duration within 10% of brief
+      - "REQUIRED STATE: editorial completed"
+      - "FAILURE: duration drift beyond tolerance fails the stage"
+      - "RETRY: re-time cuts; each version checkpointed"
+      - "CHECKPOINT BOUNDARY: refined edit_decisions stored in checkpoint artifacts"
+
+  - name: audio
+    required_artifacts_in:
+      - edit_decisions
+      - asset_manifest
+    produces:
+      - audio_mix
+    required_tools:
+      - audio_mixer
+    tools_available:
+      - audio_mixer
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Narration/music balance and loudness target met
+    success_criteria:
+      - audio_mix plan with ducking and loudness attestation
+      - "REQUIRED STATE: timeline completed"
+      - "FAILURE: missing stems fail the stage"
+      - "RETRY: re-mix; prior mixes retained"
+      - "CHECKPOINT BOUNDARY: audio_mix stored in checkpoint artifacts"
+
+  - name: render
+    required_artifacts_in:
+      - edit_decisions
+    produces:
+      - render_report
+    required_tools:
+      - video_compose
+    optional_tools:
+      - video_stitch
+      - video_trimmer
+      - color_grade
+    tools_available:
+      - video_compose
+      - video_stitch
+      - video_trimmer
+      - color_grade
+      - audio_mixer
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Output exists, passes ffprobe, matches planned duration/resolution
+      - No silent runtime swap away from the locked render_runtime
+    success_criteria:
+      - Schema-valid render_report with verified outputs
+      - "REQUIRED STATE: timeline completed (audio may run in parallel but render consumes the mix)"
+      - "FAILURE: failed render writes checkpoint failed with error; run halts for retry"
+      - "RETRY: re-render same edit_decisions deterministically; no edit change on retry"
+      - "CHECKPOINT BOUNDARY: render_report stored in checkpoint artifacts"
+
+  - name: qa
+    required_artifacts_in:
+      - render_report
+    produces:
+      - final_review
+    optional_tools:
+      - visual_qa
+      - composition_validator
+      - transcriber
+    tools_available:
+      - visual_qa
+      - composition_validator
+      - transcriber
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Technical probe, spot checks, and promise preservation all pass
+    success_criteria:
+      - final_review with status pass
+      - "REQUIRED STATE: render completed"
+      - "FAILURE: status revise/fail blocks packaging (fail closed)"
+      - "RETRY: re-inspect after re-render; reviews versioned"
+      - "CHECKPOINT BOUNDARY: final_review stored in checkpoint artifacts"
+
+  - name: packaging
+    required_artifacts_in:
+      - render_report
+      - final_review
+    produces:
+      - package_bundle
+    required_tools:
+      - export_bundle
+    tools_available:
+      - export_bundle
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - "Upload-ready bundle: video, metadata, chapters, thumbnail concept"
+    success_criteria:
+      - package_bundle export path with complete metadata
+      - "REQUIRED STATE: qa passed"
+      - "FAILURE: incomplete bundle fails the stage; never publish from an unpackaged render"
+      - "RETRY: re-package; bundles versioned"
+      - "CHECKPOINT BOUNDARY: package_bundle stored in checkpoint artifacts"
+
+  - name: human_review
+    required_artifacts_in:
+      - render_report
+      - final_review
+    produces:
+      - review_decision
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Human watches the render and approves or rejects with reasons
+    success_criteria:
+      - review_decision APPROVED or REJECTED with rationale
+      - "REQUIRED STATE: packaging completed"
+      - "FAILURE: rejection returns the run to the named stage; never auto-overridden"
+      - "RETRY: re-review after fixes; decisions appended, never rewritten"
+      - "CHECKPOINT BOUNDARY: completed only with human_approved=True (approval) or failed (rejection with reason)"
+
+  - name: publish
+    required_artifacts_in:
+      - render_report
+      - final_review
+      - review_decision
+    produces:
+      - publish_log
+    required_tools:
+      - export_bundle
+    tools_available:
+      - export_bundle
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Publish stays disabled until human_review is completed AND human_approved
+      - Visibility defaults to unlisted; nothing uploads on rejection
+    success_criteria:
+      - Schema-valid publish_log; local export always available
+      - "REQUIRED STATE: human_review APPROVED (enforced by pipeline guard, fail closed)"
+      - "FAILURE: any publish attempt before approval is rejected, never executed"
+      - "RETRY: re-export only; no re-render on retry"
+      - "CHECKPOINT BOUNDARY: completed only with human_approved=True"

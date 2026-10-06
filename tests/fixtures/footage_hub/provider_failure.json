@@ -1,0 +1,1 @@
+{"case": "all_providers_fail", "providers": [{"name": "flaky_a", "phase": "search", "error": "ConnectionError: dns failure"}, {"name": "flaky_b", "phase": "search", "error": "HTTPError: 429 rate limited"}], "expect": {"assets": [], "failures": 2, "pipeline_crashes": false}}

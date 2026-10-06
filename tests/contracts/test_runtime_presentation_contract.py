@@ -47,10 +47,13 @@ _CONVERSATION_TOKENS = [
 
 
 def _planning_stages(manifest: dict[str, Any]) -> list[dict[str, Any]]:
-    """Return every 'proposal' or 'idea' stage (a pipeline may have one or both)."""
+    """Return every 'proposal', 'idea', or 'topic' stage.
+
+    youtube-documentary names its planning stage 'topic' (it produces the
+    brief); the runtime-selection contract applies to it identically."""
     out: list[dict[str, Any]] = []
     for stage in manifest.get("stages", []):
-        if stage.get("name") in {"proposal", "idea"}:
+        if stage.get("name") in {"proposal", "idea", "topic"}:
             out.append(stage)
     return out
 

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/factory/episode_package",
+  "title": "YouTube Factory Episode Package",
+  "description": "Durable, resumable state envelope for one factory episode. Stage payloads are provider-agnostic plain JSON; known OpenMontage artifact names additionally validate against schemas/artifacts/*.schema.json at write time (enforced in lib/episode_store.py, not in this schema).",
+  "type": "object",
+  "required": ["version", "episode_id", "title", "pipeline_type", "stages"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "episode_id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "pipeline_type": { "type": "string", "const": "youtube-documentary" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "stages": {
+      "type": "object",
+      "required": [
+        "topic", "research", "sources", "facts", "claims", "script",
+        "fact_check", "storyboard", "narration", "footage", "editorial",
+        "timeline", "audio", "render", "qa", "thumbnail", "metadata",
+        "publish", "analytics"
+      ],
+      "propertyNames": {
+        "enum": [
+          "topic", "research", "sources", "facts", "claims", "script",
+          "fact_check", "storyboard", "narration", "footage", "editorial",
+          "timeline", "audio", "render", "qa", "thumbnail", "metadata",
+          "publish", "analytics"
+        ]
+      },
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z_]+$": { "$ref": "#/$defs/stage_state" }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "stage_state": {
+      "type": "object",
+      "required": ["state", "artifact_version", "updated_at"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["PENDING", "RUNNING", "REVIEW", "APPROVED", "DONE", "FAILED"]
+        },
+        "artifact_version": { "type": "integer", "minimum": 0 },
+        "artifact": { "type": "object" },
+        "failure_reason": { "type": ["string", "null"] },
+        "provider": { "type": ["string", "null"], "description": "Provider/tool label only (e.g. 'piper', 'pexels'). Never imported; informational." },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "reviewed_at": { "type": ["string", "null"], "format": "date-time" },
+        "approved_at": { "type": ["string", "null"], "format": "date-time" },
+        "done_at": { "type": ["string", "null"], "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
