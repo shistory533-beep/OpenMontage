@@ -51,3 +51,36 @@ def assert_not_silence(path: str | Path) -> dict[str, float]:
             f"mean_abs={info['mean_abs']:.6f}) — missing narration stays "
             f"missing; it is never filled with silence")
     return info
+
+
+def verify_audio_result(path: str | Path, *, sample_rate: int,
+                        channels: int, duration: float,
+                        duration_tolerance: float = 0.05) -> dict[str, float]:
+    """Verify decoded audio matches the claimed result (self-consistency).
+
+    Re-decodes the file and checks sample rate, channel count, and duration
+    against the provider's claims. Any mismatch means corruption or a
+    provider bug — raises ProviderFailureError (retryable, never shipped).
+    Decoding failures (truncated/corrupt WAV) propagate as wave.Error or
+    OSError from probe_wav; callers treat those as corruption too.
+    """
+    from lib.tts_hub.interface import ProviderFailureError
+
+    info = probe_wav(path)  # valid audio decoding happens here
+    problems: list[str] = []
+    if int(info["sample_rate"]) != int(sample_rate):
+        problems.append(
+            f"sample_rate mismatch: file={info['sample_rate']:.0f} "
+            f"claimed={sample_rate}")
+    if int(info["channels"]) != int(channels):
+        problems.append(
+            f"channels mismatch: file={info['channels']:.0f} "
+            f"claimed={channels}")
+    if abs(info["duration"] - duration) > duration_tolerance:
+        problems.append(
+            f"duration mismatch: file={info['duration']:.3f}s "
+            f"claimed={duration:.3f}s")
+    if problems:
+        raise ProviderFailureError(
+            f"{path}: audio verification failed: " + "; ".join(problems))
+    return info

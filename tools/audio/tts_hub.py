@@ -44,7 +44,7 @@ class TTSHub(BaseTool):
     agent_skills = ["text-to-speech"]
 
     capabilities = ["local_narration", "voice_discovery",
-                    "content_hash_cache", "alignment"]
+                    "content_hash_cache", "alignment", "dry_run"]
     supports = {"offline": True, "multilingual": False,
                 "voice_cloning": False, "native_audio": True,
                 "silence_fallback": False}
@@ -61,7 +61,8 @@ class TTSHub(BaseTool):
         "required": ["operation"],
         "properties": {
             "operation": {"type": "string",
-                          "enum": ["synthesize", "voices", "capabilities"]},
+                          "enum": ["synthesize", "voices", "capabilities",
+                                   "dry_run"]},
             "text": {"type": "string"},
             "voice": {"type": "string"},
             "language": {"type": "string", "default": "en"},
@@ -109,6 +110,39 @@ class TTSHub(BaseTool):
                 return ToolResult(
                     success=True,
                     data={"provider": prov.name, "voices": prov.voices()},
+                    duration_seconds=round(time.time() - start, 3))
+            if op == "dry_run":
+                # Plan without synthesis: provider/voice resolution, cache
+                # key, and whether bytes are already cached. Writes nothing.
+                from lib.tts_hub.cache import cache_key, default_cache_dir
+                from lib.tts_hub.contracts import input_hash_for
+                from lib.tts_hub.registry import get_provider
+                from lib.tts_hub import registry as reg
+                try:
+                    prov = get_provider(inputs.get("provider", "kokoro"))
+                except KeyError as exc:
+                    return ToolResult(success=False, error=str(exc))
+                text = inputs.get("text", "")
+                language = inputs.get("language", "en")
+                speed = float(inputs.get("speed", 1.0))
+                voice = inputs.get("voice") or reg.deterministic_voice(
+                    language, inputs.get("style_hint", "warm"),
+                    provider=prov)
+                key = cache_key(prov.name, voice, language, text,
+                                {"speed": speed})
+                blob = default_cache_dir() / f"{key}.wav"
+                return ToolResult(
+                    success=True,
+                    data={"provider": prov.name,
+                          "model": getattr(prov, "model", ""),
+                          "voice": voice, "language": language,
+                          "speed": speed,
+                          "input_hash": input_hash_for(text),
+                          "cache_key": key,
+                          "cache_hit": bool(blob.exists()),
+                          "available": bool(prov.is_available()),
+                          "output_path": inputs.get("output_path") or str(
+                              Path("projects") / "tts_hub" / "out.wav")},
                     duration_seconds=round(time.time() - start, 3))
             if op == "synthesize":
                 from lib.tts_hub import registry as reg

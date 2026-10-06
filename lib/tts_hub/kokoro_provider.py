@@ -119,6 +119,9 @@ def _pipeline(lang_code: str = "a") -> Any:
 class KokoroAdapter:
     name = "kokoro"
     display_name = "Kokoro"
+    model = "kokoro-82m-v1.0"  # hexgrad/Kokoro-82M weights via KPipeline
+    sample_rate = SAMPLE_RATE   # declared output format (cache verifies this)
+    channels = CHANNELS
     install_instructions = ("pip install kokoro torch scipy transformers "
                             "huggingface_hub num2words loguru + "
                             "spacy en_core_web_sm; weights auto-download "
@@ -138,6 +141,7 @@ class KokoroAdapter:
     def synthesize(self, text: str, voice: str, out_path: str,
                    language: str = "en", **options: Any) -> SpeechResult:
         from lib.tts_hub.audio import assert_not_silence
+        from lib.tts_hub.contracts import input_hash_for
 
         if not (text or "").strip():
             raise EmptyTextError("refusing to synthesize empty text")
@@ -199,8 +203,10 @@ class KokoroAdapter:
         with open(out, "rb") as f:
             checksum = "sha256:" + hashlib.sha256(f.read()).hexdigest()
         return SpeechResult(
-            provider="kokoro", voice=voice, language=language,
-            input_text=text, output_audio_path=str(out),
+            provider="kokoro", model=self.model, voice=voice,
+            language=language, input_text=text,
+            input_hash=input_hash_for(text),
+            output_audio_path=str(out),
             sample_rate=SAMPLE_RATE, channels=CHANNELS,
             duration=info["duration"], alignment=alignment,
             generation_metadata={"engine": "kokoro-torch",

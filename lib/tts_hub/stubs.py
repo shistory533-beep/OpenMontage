@@ -19,6 +19,9 @@ class ChatterboxTurboStub:
 
     name = "chatterbox-turbo"
     display_name = "Chatterbox-Turbo"
+    model = "chatterbox-turbo"  # concrete weights TBD on implementation
+    sample_rate: int | None = None  # unknown until synthesis is implemented
+    channels: int | None = None
     install_instructions = (
         "pip install chatterbox-tts (needs GPU for practical inference); "
         "then implement synthesis in lib/tts_hub/chatterbox_provider.py "
@@ -47,6 +50,9 @@ class Qwen3TTSStub:
 
     name = "qwen3-tts"
     display_name = "Qwen3-TTS"
+    model = "qwen3-tts-flash"  # DashScope TTS model family
+    sample_rate: int | None = None  # unknown until synthesis is implemented
+    channels: int | None = None
     install_instructions = (
         "Set DASHSCOPE_API_KEY (see tools/audio/dashscope_tts.py, already "
         "shipped); then implement synthesis in lib/tts_hub/qwen3_provider.py "

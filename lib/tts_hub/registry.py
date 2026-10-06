@@ -38,6 +38,7 @@ def capabilities() -> list[dict[str, Any]]:
             available, voice_list = False, []
         out.append({"name": p.name,
                     "display_name": getattr(p, "display_name", p.name),
+                    "model": getattr(p, "model", ""),
                     "available": available,
                     "voices": voice_list,
                     "install_instructions": getattr(p, "install_instructions", "")})
