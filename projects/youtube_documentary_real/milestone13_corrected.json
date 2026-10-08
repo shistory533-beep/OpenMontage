@@ -1,0 +1,13 @@
+{
+  "milestone": "13_corrected",
+  "video_path": "final_3min_correct_v2.mp4",
+  "duration_s": 150.02,
+  "codec": "h264",
+  "audio": "aac",
+  "video_stream_duration_s": 150.016533,
+  "audio_duration_s": 150.023991,
+  "source_footage": [
+    "archive_clip.mp4 (archive.org, public domain, 1920x1080, trimmed 49.72s)"
+  ],
+  "notes": "No paid APIs; real footage only; narration preserved; no silent duplication."
+}

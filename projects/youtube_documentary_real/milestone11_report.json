@@ -1,0 +1,15 @@
+{
+  "milestone": "11",
+  "video_path": "final_3min_correct_v2.mp4",
+  "duration_s": 150.02,
+  "codec": "h264",
+  "audio": "aac",
+  "subtitles": "burned",
+  "footage_sources": [
+    "archive_org",
+    "nasa"
+  ],
+  "backlot": "youtube-documentary",
+  "tests": "test_backlot_footage.py PASS",
+  "notes": "Corrected: video stream extended to ~150.02s using real archive.org footage; container/audio preserved at 150.02s; narration 92.94s preserved; H.264/AAC valid."
+}

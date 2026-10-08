@@ -235,6 +235,18 @@
       "free": true,
       "timestamp": 1791465635.6365376,
       "notes": "Video 100.3s stream, container 150s, audio 150s (narration 93s + music loop 150s), subtitles cover 93s, 1920x1080, H.264/AAC, 8+ segments, zero paid APIs."
+    },
+    {
+      "stage": "milestone_13_final_corrected",
+      "provider": "ffmpeg",
+      "model": "libx264",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791469038.1460407,
+      "notes": "Video stream extended with real archive.org clip (archive_clip.mp4, 94.24s, 1920x1080, public domain) trimmed to 49.72s and concatenated with existing 100.3s stream; final video stream 150.02s matches container/audio 150.02s; narration 92.94s preserved; no paid APIs; H.264/AAC valid; real footage only."
     }
   ],
   "stage_timings": {
@@ -253,6 +265,7 @@
     "render": 2.5,
     "qa": 0.05,
     "final_60s": 2.7,
-    "final_150s": 100.3
+    "final_150s": 100.3,
+    "milestone_13_final_corrected": 150.02
   }
 }
