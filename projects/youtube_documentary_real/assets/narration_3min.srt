@@ -1,0 +1,15 @@
+1
+00:00:01,000 --> 00:00:15,000
+Documentary footage from archive.org and NASA — fully public domain, no paid access required.
+
+2
+00:00:16,000 --> 00:00:35,000
+Archive.org adapter retrieves prelinger films and open-source movies; NASA contributes earth-observation clips from the public catalog.
+
+3
+00:00:36,000 --> 00:00:55,000
+Multiple real clips assembled into structured narrative: historical footage, modern observation, global perspective.
+
+4
+00:00:56,000 --> 00:01:10,000
+Piper TTS narration synthesized locally from open-source voice models. Backlot board observes full stage state and provenance.

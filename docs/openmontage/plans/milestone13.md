@@ -1,0 +1,6 @@
+# Milestone 13 — 3-min 1080p documentary
+Objective: Real 3-min H.264/AAC 1920x1080 video with 2.5-3min Piper narration, 8-15 real multi-source clips (archive_org/nasa/wikimedia), music/audio mix, editorial pacing, all 14 stages + gates, Backlot, provenance, strong QA, zero paid APIs.
+Reuse: youtube-documentary pipeline, existing piper_model, backlot, factory stages, archive/nasa/wikimedia adapters.
+Constraints: No paid APIs; real downloads only; 1080p output requires higher-resolution source clips or scaling; narration must match video duration closely.
+Plan steps: 1) Plan/TODO. 2) Search/download 8-15 clips from free sources (archive, nasa, wikimedia, etc.). 3) Generate long Piper narration (~150s) matching script. 4) Trim clips to 10-20s segments for pacing. 5) Edit/concatenate with transitions; mix narration + free music (music_library/freesound if available else silence mixed). 6) Render 1920x1080 H.264/AAC with subtitles burned. 7) Strong QA (duration sync, audio levels, subtitle check, frame samples, source coverage, duplicate detection). 8) Verify Backlot pipeline_type + stage states. 9) Update provenance with all timings. 10) Commit.
+Verification: ffprobe duration ~180s, resolution 1920x1080, audio stream present, subtitles present, source count >=8, provenance steps with timings, QA all PASS.
