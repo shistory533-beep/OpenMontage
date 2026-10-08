@@ -1,0 +1,4 @@
+# T2/T3 plan artifacts live here: docs/openmontage/plans/<task>.md
+# Each artifact: objective, constraints, affected files, ordered tasks,
+# expected verification result, acceptance criteria, risks, plus a LEDGER
+# section (finding / ruling / reason / plan adjustment) when the plan changes.
