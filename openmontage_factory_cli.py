@@ -4,7 +4,24 @@ import argparse, sys, os, json, time, subprocess
 sys.path.insert(0, "/workspaces/OpenMontage")
 from pathlib import Path
 
+def _load_env_local():
+    import os
+    try:
+        from pathlib import Path
+        env_path = Path(".env.local")
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                line = line.split("#")[0].strip()
+                if line and "=" in line:
+                    k, v = line.split("=", 1)
+                    if v and k == "OMNIROUTE_API_KEY" and not os.getenv(k):
+                        os.environ[k] = v
+    except Exception:
+        pass
+
+
 def cmd_run(args):
+    _load_env_local()
     job_id = args.topic.replace(" ", "_").lower()[:40] + "_" + str(int(time.time()))
     cfg = json.load(open("factory_config.yaml")) if False else {"pipeline":"youtube-documentary","topic":args.topic,"approval_mode":"automatic"}
     print(f"[FACTORY] START job={job_id} topic='{args.topic}' model={getattr(args,'model','omniroute/auto')} approval={cfg.get('approval_mode','automatic')}")
