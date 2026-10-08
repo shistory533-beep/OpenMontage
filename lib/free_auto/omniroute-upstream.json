@@ -1,0 +1,14 @@
+{
+  "gateway": "omniroute",
+  "display_name": "OmniRoute (3.8.51)",
+  "base_url_default": "http://localhost:20128/v1",
+  "base_url_env": "OMNIROUTE_BASE_URL",
+  "api_key_env": "OMNIROUTE_API_KEY",
+  "free_tier": "unknown",
+  "verified_models": [],
+  "auth_state": "AUTH_REQUIRED (no connection configured; catalog 358, configuredCount=0)",
+  "availability": "UNAVAILABLE (no active provider connections; server healthy but upstream unconfigured)",
+  "retired_providers": ["qwen-web", "felo-web", "felo", "chatgpt-web", "cgpt-web", "msdesigner"],
+  "status_notes": "Only add verified free model after a provider connection is configured in OmniRoute (provider_connections active, provider_nodes defined, model_context_overrides verified). No unverified/paid model inserted into model_registry.json.",
+  "updated_at": "2026-10-08T08:51:48Z"
+}
