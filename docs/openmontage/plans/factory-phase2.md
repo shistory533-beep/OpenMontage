@@ -47,6 +47,30 @@ hyperframes npm).
   READY_FOR_REVIEW/APPROVED, publish not performed) — **1 passed in 148 s**
   with `OPENMONTAGE_ALLOW_NETWORK=1`. Real-media path proven end to end.
 - FREE-AUTO calibration top-up committed as `4c1d56c` (10/20 sourced).
+- Phase 2 excerpt smoke: Apollo 11 TOPIC→PACKAGING via
+  `scripts/apollo_excerpt_smoke.py` — **EXCERPT OK + QA PASS** (clean rerun):
+  13 stages completed, failed=None; 8 cuts; script 78.11 s; MP4 h264+aac
+  74.1 s / 30 MB independently ffprobe-verified; 10/10 claims verified, 0
+  blockers; 5 research sources (Wikipedia article+REST, NSSDC CSM+LM,
+  Moon-landing REST); footage 8/8 (6 pass + 2 weak, zero WRONG, all
+  verified_public_domain, NASA/Wikimedia/Archive.org); mix −14.9 LUFS
+  (target −14±2), final true peak −2.69 dBTP (ceiling −1.0); QA status pass
+  with zero issues in all 6 areas. human_review stays PENDING (no invented
+  decision — READY_FOR_REVIEW requires a real human payload).
+- Fixes inside the milestone (root causes, no weakening): (a) dry-run ran
+  real Kokoro before validating → cheap estimated-timings path (4.3 s,
+  identical 5 schema validations); canary uses persistent content-keyed TTS
+  cache + `tts_voice: af_heart` so producer narration cache-hits (durations
+  byte-identical across runs: 10.7/10.3/11.1/7.7/7.0/8.6/9.5/9.2 s).
+  (b) footage halted on top-pick Mixkit bot-gating (301→/discover/, no
+  static mp4) while Wikimedia alternates existed → `run_footage` tries
+  scored pass/weak candidates in rank order (slot-s2 filled by
+  wikimedia_151568289, verdict pass 0.74); `tests/test_footage_fallback.py`
+  locks it. (c) render mux used default AAC bitrate → true peak −3.0 rose
+  to −0.3, QA BLOCKED → explicit `-b:a 192k` in `_compose` step-3 mux
+  (matches segments/mux elsewhere). Side observation: ProducerAgent
+  resumes DONE stages (H2 revalidation) — a rerun without wiping the
+  project dir silently reuses the prior render.
 
 ## Risks
 - R1 smoke network flakiness → retry + Wikimedia/Archive-first queries.

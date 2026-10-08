@@ -693,7 +693,13 @@ class VideoCompose(BaseTool):
                 # Use type-based selectors (0:v, 1:a) instead of index-based
                 # (0:v:0) because source videos may have audio as stream 0
                 # and video as stream 1 (e.g. Kling-generated clips).
-                cmd.extend(["-map", "0:v", "-map", "1:a", "-c:a", "aac", "-shortest"])
+                # Explicit 192k: ffmpeg's default AAC bitrate quantizes
+                # coarsely enough to push true peak ~2.5 dB over the mix
+                # master (Apollo 2026-10-08: mix -3.0 dBTP rendered to
+                # -0.3 dBTP, breaching the -1.0 ceiling). Matches the
+                # segment and mux bitrates elsewhere in this file.
+                cmd.extend(["-map", "0:v", "-map", "1:a", "-c:a", "aac",
+                            "-b:a", "192k", "-shortest"])
             else:
                 cmd.extend(["-c:a", "copy"])
 

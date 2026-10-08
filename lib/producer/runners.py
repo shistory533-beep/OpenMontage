@@ -214,28 +214,43 @@ def run_footage(ctx: StageContext, cfg: dict[str, Any]) -> dict[str, Any]:
                                 f"{d.get('source_id', '')}")
             cands.append(d)
         board = scorer.score_requirement(req, cands)
-        if board["decision"] == "missing" or not board["scores"]:
+        ranked = [s for s in board["scores"]
+                  if s["decision"] in ("pass", "weak")]
+        if board["decision"] == "missing" or not ranked:
             gaps.append({"requirement_id": req.get("id"),
                          "reason": "no candidates retrieved"})
             continue
-        best = board["scores"][0]
-        if best["decision"] not in ("pass", "weak"):
+        if not ranked:
             gaps.append({"requirement_id": req.get("id"),
                          "reason": f"best pick scored "
-                                   f"{best['decision']}; no fillers used"})
+                                   f"{board['scores'][0]['decision']}; "
+                                   f"no fillers used"})
             continue
-        asset = next(a for a in cands
-                     if (a.get("asset_id") or a.get("id"))
-                     == best["asset_id"])
-        try:
-            adapter = get_adapter(asset.get("provider", ""))
-            from lib.footage_hub.contracts import NormalizedAsset
-            dl_asset, _ = mgr.download(NormalizedAsset.from_dict(asset),
-                                       adapter)
-            record = dl_asset.to_dict()
-        except Exception as exc:
+        # Try scored candidates in rank order: a top pick with a broken
+        # download URL must not strand the slot while verified alternates
+        # exist. Every attempt is already rights-scored pass/weak; the
+        # first successful download wins, otherwise the slot gaps loudly.
+        record = None
+        best = None
+        last_err = ""
+        for pick in ranked:
+            asset = next(a for a in cands
+                         if (a.get("asset_id") or a.get("id"))
+                         == pick["asset_id"])
+            try:
+                adapter = get_adapter(asset.get("provider", ""))
+                from lib.footage_hub.contracts import NormalizedAsset
+                dl_asset, _ = mgr.download(NormalizedAsset.from_dict(asset),
+                                           adapter)
+                record = dl_asset.to_dict()
+                best = pick
+                break
+            except Exception as exc:
+                last_err = (f"{pick['asset_id']}: download failed: {exc}")
+                continue
+        if record is None or best is None:
             gaps.append({"requirement_id": req.get("id"),
-                         "reason": f"download failed: {exc}"})
+                         "reason": last_err or "all candidates failed"})
             continue
         aid = (record.get("asset_id") or asset.get("asset_id")
                or f"{record.get('provider', '')}_"
