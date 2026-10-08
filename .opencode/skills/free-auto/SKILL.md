@@ -10,9 +10,12 @@ description: Route LLM work through the FREE-AUTO gateway and maintain its model
 
 ## Procedure
 
-1. Gateway is the only router: `python3 -m lib.free_auto.gateway
-   --host 127.0.0.1 --port 4100`. Never build a second router; extend
-   `lib/free_auto/` (classify → filter → rank → cascade → failover).
+1. Gateway is the only router. Ensure it is up (idempotent — safe to run
+   every session start, and wired to container start via
+   `.devcontainer/devcontainer.json`): `bash scripts/free_auto_gateway.sh
+   start` (or `make free-auto-up`). Never run the gateway any other way;
+   never build a second router; extend `lib/free_auto/` (classify → filter
+   → rank → cascade → failover).
 2. Per request you may set `complexity` (`t0`–`t3`, or `[T0]`–`[T3]` tag in
    text) and `session_id` (winner sticks while eligible). Read the
    `free_auto{}` block (candidate, gateway, task_class, complexity, reason,

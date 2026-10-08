@@ -6,7 +6,7 @@ PIP = $(RUN_PYTHON) -m pip
 
 .DEFAULT_GOAL := setup
 
-.PHONY: setup install install-dev install-gpu test test-contracts lint clean preflight demo demo-list hyperframes-doctor hyperframes-warm venv ensure-venv
+.PHONY: setup install install-dev install-gpu test test-contracts lint clean preflight demo demo-list hyperframes-doctor hyperframes-warm venv ensure-venv free-auto-up free-auto-check
 
 # ---- Virtual environment ----
 
@@ -86,6 +86,16 @@ install-dev: ensure-venv
 install-gpu: ensure-venv
 	$(PIP) install -r requirements-gpu.txt
 	$(PIP) install diffusers transformers accelerate
+
+# ---- FREE-AUTO gateway lifecycle (single launch system) ----
+
+free-auto-up:
+	@echo "==> Ensuring FREE-AUTO gateway (idempotent)..."
+	bash scripts/free_auto_gateway.sh start
+
+free-auto-check:
+	bash scripts/free_auto_gateway.sh check
+	@echo "==> FREE-AUTO gateway healthy."
 
 # ---- Testing ----
 

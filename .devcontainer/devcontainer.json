@@ -1,0 +1,8 @@
+{
+  // Minimal Codespaces autostart for the FREE-AUTO local gateway.
+  // Takes effect on container start/rebuild. Idempotent: the ensure script
+  // exits 0 immediately when the gateway is already healthy, and never
+  // kills a foreign holder of the port (fails loud instead).
+  // Current sessions: run `make free-auto-up` (same script, same path).
+  "postStartCommand": "bash scripts/free_auto_gateway.sh start"
+}
