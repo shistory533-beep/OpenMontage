@@ -39,6 +39,15 @@ Focused → gate suites → mypy changed-files → real smoke → report.
 Pre-existing fails must stay byte-identical (2× seedance ffprobe, 4×
 hyperframes npm).
 
+## Milestone evidence (2026-10-08)
+- M1 (closeout): `7ceaf0f` + `de10bfc`, tree clean, no push. mypy 0 new
+  errors. Gate suites: 49 + 72 + 58 green.
+- M2 (live E2E): `tests/test_producer_live_e2e.py` (real Kokoro narration +
+  real Wikimedia footage + real ffmpeg render + full QA + review to
+  READY_FOR_REVIEW/APPROVED, publish not performed) — **1 passed in 148 s**
+  with `OPENMONTAGE_ALLOW_NETWORK=1`. Real-media path proven end to end.
+- FREE-AUTO calibration top-up committed as `4c1d56c` (10/20 sourced).
+
 ## Risks
 - R1 smoke network flakiness → retry + Wikimedia/Archive-first queries.
 - R2 Kokoro first-run download slow → allow extended timeout, cache reuse.
