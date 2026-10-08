@@ -109,10 +109,11 @@ def test_classify_deterministic():
 
 def test_registry_loads_ten_seeds_and_filters():
     reg = load_registry()
-    assert len(reg.entries) == 20  # 10 original seeds + 10 :free additions (Oct 2026)
+    assert len(reg.entries) == 22  # 10 seeds + 10 :free + 2 bytez (Oct 2026)
     ids = {e.id for e in reg.entries}
     assert {"muse-spark-1.3", "laguna-s-2.1", "longcat-2.5-preview",
-            "gemma-4-31b", "lfm-2.5-2.6b"} <= ids
+            "gemma-4-31b", "lfm-2.5-2.6b",
+            "qwen3-4b", "gemma-3-4b-it"} <= ids
     # no routers, no safety classifiers as candidates
     for e in reg.eligible():
         for up in e.upstreams:

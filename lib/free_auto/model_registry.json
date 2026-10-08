@@ -879,6 +879,78 @@
      "model": "google/gemma-4-31b-it:free"
     }
    ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Bytez free-credit eligible (open model, small). No measured benchmark; no free-price claim: Bytez bills credits, free plan is $1/4wk for <=7B open models.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": null,
+    "multimodal": null,
+    "reasoning": null,
+    "structured_output": null,
+    "tool_use": null
+   },
+   "category": "fast-simple",
+   "display": "Qwen3 4B (Bytez)",
+   "experimental": false,
+   "id": "qwen3-4b",
+   "initial_priority": 21,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "BYTEZ_API_KEY",
+     "base_url_default": "https://api.bytez.com/models/v2/openai/v1",
+     "base_url_env": "BYTEZ_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "bytez",
+     "model": "Qwen/Qwen3-4B"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Bytez free-credit eligible (open model, small). No measured benchmark; no free-price claim: Bytez bills credits, free plan is $1/4wk for <=7B open models.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": null,
+    "multimodal": null,
+    "reasoning": null,
+    "structured_output": null,
+    "tool_use": null
+   },
+   "category": "fast-simple",
+   "display": "Gemma 3 4B IT (Bytez)",
+   "experimental": false,
+   "id": "gemma-3-4b-it",
+   "initial_priority": 22,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "BYTEZ_API_KEY",
+     "base_url_default": "https://api.bytez.com/models/v2/openai/v1",
+     "base_url_env": "BYTEZ_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "bytez",
+     "model": "google/gemma-3-4b-it"
+    }
+   ]
   }
  ]
 }

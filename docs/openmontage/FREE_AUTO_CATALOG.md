@@ -52,7 +52,7 @@ configured in this repo, so no candidates are inventoried from them.
   inkling-small demoted on agentic per vendor's own TB 2.1 figure but holds
   Research #5 on GPQA 88.3; inkling-full (null quality/agentic priors) sits
   below top-6 despite strong reasoning — correctly penalized by the
-  unknown-prior confidence path. Tables in §3 refreshed.
+  unknown-prior confidence path. Tables in §4 refreshed.
 
 - Gate verdict: criteria B (reachable candidates have live status — all are
   AUTH_REQUIRED, none LIVE_OK) and C (independent review) unmet →
@@ -103,7 +103,7 @@ configured in this repo, so no candidates are inventoried from them.
   operator estimates — explicitly, not silently.
 - Ranking effect: Build now muse-spark-1.3 0.842 > step-3.7-flash 0.821 >
   mimo-v2.6-flash 0.820; Research led by nemotron-3-super-120b 0.848;
-  Ultra demoted on agentic per its own TB 2.1 number. Full tables in §3.
+  Ultra demoted on agentic per its own TB 2.1 number. Full tables in §4.
 - Honesty-guard test strengthened (not weakened): sourced entries must carry
   source + date + score% + confidence; unsourced must disclaim.
 - Reviewer subagent 3rd attempt failed (same provider restriction).
@@ -117,7 +117,7 @@ Honesty rule (enforced by `test_registry_has_no_invented_benchmarks`):
 `benchmark.source` stays `null` until a measured score with a citable source
 exists. Capabilities below come from API metadata, not marketing.
 
-## 1. Verified catalog (20 candidates)
+## 1. Verified catalog (22 candidates)
 
 Capabilities key: T=tool_use, S=structured_output, R=reasoning, Ctx=context.
 T/S/R verified from `supported_parameters`; Ctx from `context_length`.
@@ -165,7 +165,34 @@ sourced score (SWE-bench, Terminal-Bench, Aider/Polyglot, LiveCodeBench,
 agent/tool-use) is found, set `benchmark{source,date,note}` + corresponding
 `priors{}` on the entry and cite the source here with date + confidence.
 
-## 3. Rankings (03:02Z calibrated: 10 models carry measured benchmark priors — see §0; rest operator priors + verified capabilities; both keys configured, no telemetry)
+## 3. Bytez provider (added 2026-10-08)
+
+- OpenCode: `opencode.json` custom provider `bytez` (official
+  openai-compatible pattern: `npm:@ai-sdk/openai-compatible`,
+  `name:"Bytez"`, `baseURL:https://api.bytez.com/models/v2/openai/v1`,
+  `apiKey:"{env:BYTEZ_API_KEY}"`). Verified: `opencode models` lists
+  `bytez/Qwen/Qwen3-4B`, `bytez/google/gemma-3-4b-it`, `free-auto/free-auto`.
+- Named `/connect` without local config is NOT possible in-repo: `/connect`
+  lists Models.dev built-ins and Bytez is absent there (226 providers
+  checked). Upstream point: Models.dev providers directory PR, then an
+  OpenCode release. Do not claim otherwise.
+- Billing (official): free = $1 credits / 4 weeks, open models ≤7B, 1
+  concurrent request. Nothing is price-free → Bytez upstreams are
+  `free_tier:"unknown"` (eligible, neutral), never `"free"`. Paid-only
+  (>7B open, all closed-source/provider-key models) are excluded from
+  FREE-AUTO candidates.
+- FREE-AUTO entries (official-source IDs only): `qwen3-4b`
+  (`Qwen/Qwen3-4B`, Bytez docs example) and `gemma-3-4b-it`
+  (`google/gemma-3-4b-it`, LiteLLM docs). Capabilities/benchmarks null
+  (unmeasured — honesty guard applies). Auth `Bearer` verified compatible
+  (docs' own OpenAI-SDK example). Refresh procedure: with a key, list live
+  `/models`, add verified ≤7B IDs only — never hardcode more.
+- Live status 2026-10-08: `/models` without key → HTTP 401
+  (AUTH_REQUIRED). No `BYTEZ_API_KEY` in this environment; no completion
+  probes run, none fabricated. Env: `BYTEZ_API_KEY` (+ optional
+  `BYTEZ_BASE_URL` override, default the official base URL).
+
+## 4. Rankings (03:02Z calibrated: 10 models carry measured benchmark priors — see §0; rest operator priors + verified capabilities; both keys configured, no telemetry)
 
 Deterministic output of `rank_candidates` (12 components × task weights +
 free-tier adjust ±). Live telemetry (tool/SO rates, cooldowns, EMA latency)
@@ -211,6 +238,10 @@ Cheapest verified-free fast lanes: lfm-2.5-2.6b, laguna-xs-2.1, north-mini-code
 (small/fast latency class, `:free` on OpenRouter).
 
 ### Provider reliability (qualitative, 2026-10-08)
+- bytez: AUTH_REQUIRED (no key; `/models` without key → HTTP 401).
+  Contract verified from official docs (base URL, Bearer auth, billing
+  tiers, 2 attested model IDs). Env: `BYTEZ_API_KEY` (+ optional
+  `BYTEZ_BASE_URL` override).
 - openrouter: listing LIVE_OK; 10/10 registry IDs resolvable; 15 verified
   `:free` endpoints. paid-route risk on 5 non-suffix IDs → router prefers
   Kilo there via free-tier penalty (−0.05).
@@ -220,7 +251,7 @@ Cheapest verified-free fast lanes: lfm-2.5-2.6b, laguna-xs-2.1, north-mini-code
   (auth/invalid/capability) continues only to different-credential candidates;
   routers/safety never leaves; relaxed filter never strands a request.
 
-## 4. Routing policy (typical)
+## 5. Routing policy (typical)
 
 T0 → fastest capable (T0 latency×2 re-weight) · T1 → efficient coding ·
 T2 → strong coding/reasoning (default) · T3 → strongest eligible

@@ -133,7 +133,7 @@ and contains no secrets — only key env-var names.
 
 Never rotate keys to evade limits: each (candidate, gateway) is tried at most
 once per request and only user-configured credentials (`OPENROUTER_API_KEY`,
-`KILO_API_KEY`, `KILO_BASE_URL`) are used.
+`KILO_API_KEY`, `KILO_BASE_URL`, `BYTEZ_API_KEY`, `BYTEZ_BASE_URL`) are used.
 
 ## /models integration
 
@@ -148,7 +148,9 @@ selection.
 Edit `lib/free_auto/model_registry.json`: add an entry with `id`, `display`,
 `category`, `upstreams[]` (gateway, model slug, `free_tier`, key/base envs),
 `capabilities`, `priors`, `latency_class`, `benchmark{source,date,note}`,
-`initial_priority`, `experimental`. Routers (`openrouter/auto`,
+`initial_priority`, `experimental`. Gateways are plain strings — `kilo`,
+`openrouter`, `bytez` all work with zero code changes (key env + base URL
+default per upstream). Routers (`openrouter/auto`,
 `openrouter/free`, `kilo-auto/*`) and safety classifiers
 (`nemotron-3.5-content-safety`) are rejected as leaf candidates by
 `registry.py`. No code changes needed; scoring and health pick the entry up

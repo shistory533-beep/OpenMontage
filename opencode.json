@@ -17,6 +17,22 @@
           "name": "FREE-AUTO"
         }
       }
+    },
+    "bytez": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Bytez",
+      "options": {
+        "baseURL": "https://api.bytez.com/models/v2/openai/v1",
+        "apiKey": "{env:BYTEZ_API_KEY}"
+      },
+      "models": {
+        "Qwen/Qwen3-4B": {
+          "name": "Qwen3 4B (Bytez)"
+        },
+        "google/gemma-3-4b-it": {
+          "name": "Gemma 3 4B IT (Bytez)"
+        }
+      }
     }
   }
 }
