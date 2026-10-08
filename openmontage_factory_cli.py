@@ -35,7 +35,8 @@ def cmd_run(args):
             "free":True, "error":None, "timestamp":time.time(),
             "notes":"Automatic factory run with OmniRoute auto default model; approval=automatic; providers=free/local-first (omniroute gateway); resume supported.",
             "job_id":job_id,
-            "requested_model":"omniroute/auto"
+            "requested_model":"omniroute/auto",
+            "requested_role":"omniroute"
         })
         json.dump(prov, open(prov_path,"w"), indent=2)
     print(f"[FACTORY] COMPLETE job={job_id} final={prov_path.parent/'final_3min_correct_v2.mp4'}")
