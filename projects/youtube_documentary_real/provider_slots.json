@@ -1,0 +1,15 @@
+{
+  "slots": {
+    "google_tts": {"env_key": "GOOGLE_API_KEY", "free_tier": "1M chars/mo", "status": "optional", "installed": false},
+    "elevenlabs_tts": {"env_key": "ELEVENLABS_API_KEY", "status": "optional", "installed": false},
+    "azure_tts": {"env_key": "AZURE_SPEECH_KEY", "status": "optional", "installed": false},
+    "piper_tts": {"env_key": null, "local_model_path": "projects/youtube_documentary_real/piper_model/en_US-lessac-medium.onnx", "status": "installed", "installed": true},
+    "omniroute": {"env_key": "OMNIRoute", "status": "optional_upstream", "installed": false},
+    "archive_org": {"env_key": null, "status": "free_no_key", "installed": true},
+    "nasa": {"env_key": "NASA_API_KEY (optional for rate limits only)", "status": "free_no_key", "installed": true},
+    "wikimedia": {"env_key": null, "status": "free_no_key", "installed": true},
+    "google_music": {"env_key": "GOOGLE_API_KEY", "status": "optional", "installed": false}
+  },
+  "current_path": "zero_key_local_first",
+  "default_provider_selection": "free_first_then_local"
+}

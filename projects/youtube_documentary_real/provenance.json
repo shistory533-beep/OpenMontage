@@ -1,0 +1,247 @@
+{
+  "entries": [
+    {
+      "stage": "topic",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/topic.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1474779
+    },
+    {
+      "stage": "research",
+      "provider": "direct_clip_search",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/research.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1478934
+    },
+    {
+      "stage": "evidence",
+      "provider": "direct_clip_search",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/evidence.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1483393
+    },
+    {
+      "stage": "script",
+      "provider": "piper_tts",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/script.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1487427
+    },
+    {
+      "stage": "fact_check",
+      "provider": "piper_tts",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/fact_check.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1491687
+    },
+    {
+      "stage": "storyboard",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/storyboard.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1495838
+    },
+    {
+      "stage": "narration",
+      "provider": "piper_tts",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/narration.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1499872
+    },
+    {
+      "stage": "footage",
+      "provider": "direct_clip_search",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/footage.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.150413
+    },
+    {
+      "stage": "footage_intelligence",
+      "provider": "direct_clip_search",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/footage_intelligence.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1508048
+    },
+    {
+      "stage": "editorial",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/editorial.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.151239
+    },
+    {
+      "stage": "timeline",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/timeline.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.151656
+    },
+    {
+      "stage": "audio",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/audio.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.15205
+    },
+    {
+      "stage": "render",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/render.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1530066
+    },
+    {
+      "stage": "qa",
+      "provider": "ffmpeg",
+      "model": null,
+      "artifact": "projects/e2e_factory_1791455208/qa.json",
+      "duration_s": 0.05,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.1534338
+    },
+    {
+      "stage": "render",
+      "provider": "ffmpeg",
+      "model": "libx264",
+      "artifact": "projects/e2e_factory_1791455208/render_video.mp4",
+      "duration_s": 2.0,
+      "fallback": false,
+      "free": true,
+      "error": null,
+      "timestamp": 1791455208.2598534
+    },
+    {
+      "stage": "milestone_10",
+      "provider": "archive_org",
+      "model": "libx264",
+      "artifact": "final_documentary_30s.mp4",
+      "duration_s": 30.04,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791455918.1100738
+    },
+    {
+      "stage": "footage_search",
+      "provider": "archive_org",
+      "model": "none",
+      "artifact": "assets/archive_clip.mp4",
+      "duration_s": 10.0,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791456537.770562
+    },
+    {
+      "stage": "footage_search",
+      "provider": "nasa",
+      "model": "none",
+      "artifact": "assets/nasa_clip.mp4",
+      "duration_s": 15.0,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791456537.7705636
+    },
+    {
+      "stage": "narration",
+      "provider": "piper_tts",
+      "model": "en_US-lessac-medium",
+      "artifact": "/tmp/piper_narration_long.wav",
+      "duration_s": 41.16,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791456537.7705643
+    },
+    {
+      "stage": "audio_mix",
+      "provider": "ffmpeg",
+      "model": "libx264/aac",
+      "artifact": "final_60s_documentary.mp4",
+      "duration_s": 60.0,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791456537.770565
+    },
+    {
+      "stage": "milestone_12",
+      "provider": "ffmpeg",
+      "model": "libx264",
+      "artifact": "final_150s_documentary.mp4",
+      "duration_s": 100.3,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791463898.9579341
+    }
+  ],
+  "stage_timings": {
+    "topic": 0.05,
+    "research": 0.05,
+    "evidence": 0.05,
+    "script": 0.05,
+    "fact_check": 0.05,
+    "storyboard": 0.05,
+    "narration": 0.05,
+    "footage": 0.05,
+    "footage_intelligence": 0.05,
+    "editorial": 0.05,
+    "timeline": 0.05,
+    "audio": 0.05,
+    "render": 2.5,
+    "qa": 0.05,
+    "final_60s": 2.7,
+    "final_150s": 100.3
+  }
+}
