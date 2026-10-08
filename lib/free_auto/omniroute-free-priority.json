@@ -1,0 +1,62 @@
+{
+  "scan_time": "2026-10-08T09:10:00Z",
+  "omni_version": "3.8.51",
+  "runtime_verified": true,
+  "source_files_inspected": ["noauth.ts","oauth.ts","web-cookie.ts","local.ts","search.ts","audio.ts","upstream-proxy.ts","system.ts","freeProviderRankings.ts","providerRegistry","provider_connections schema"],
+  "db_verified": {
+    "provider_connections_active": 0,
+    "provider_nodes": 0,
+    "model_context_overrides": 0,
+    "catalog_count": 358,
+    "service_version": "3.8.51"
+  },
+  "real_inference_evidence": {
+    "openrouter/gemini-2.5-flash-preview": "401 auth missing",
+    "together/google/gemma-3-4b-it": "401 auth missing",
+    "groq/llama3-8b-8192": "401 auth missing",
+    "gemini-api/gemini-2.5-flash-preview": "401 auth missing",
+    "pollinations/google/gemma-3-4b-it": "400 invalid alias (provider exists, mapping missing)",
+    "cloudflare-workers/gemma-3-4b": "401 auth missing",
+    "devin-cli-agentic": "400 unknown provider (needs prefix)",
+    "auto/route": "502 auth/key required (catalog requires key)",
+    "summary": "All real; none verified free (no active connection)"
+  },
+  "provider_categories": {
+    "NOAUTH": 5,
+    "OAUTH": 11,
+    "WEB_COOKIE": 27,
+    "LOCAL": 6,
+    "SEARCH": 15,
+    "APIKEY_catalog": "present (not exact count from source files; referenced by registry/catalog)"
+  },
+  "deprecated_retired_confirmed_by_db_triggers": ["qwen-web","chatgpt-web","cgpt-web","felo-web","felo","msdesigner"],
+  "verified_free_live": 0,
+  "free_but_auth_required": ["openrouter","together","groq","gemini-api","cloudflare-workers","pollinations"],
+  "free_with_limits_unverified": ["devin-cli-agentic","duckduckgo-web","cloudflare-playground","veoaifree-web","codex-app-server"],
+  "unknown_unverified": 358,
+  "paid_or_unverified": "cannot confirm split without active connections",
+  "tier_recommendation": {
+    "TIER_S": "NONE VERIFIED LIVE (would prioritize openrouter if connection configured then verified)",
+    "TIER_A": "openrouter, together, groq, gemini-api, pollinations (potential, unverified)",
+    "TIER_B": "cloudflare-playground, devin-cli-agentic, duckduckgo-web",
+    "TIER_C": "kimi-coding (deprecated/subscription flags), deprecated web providers",
+    "SKIP": "qwen-web, chatgpt-web, cgpt-web, felo-web, felo, msdesigner"
+  },
+  "top_5_connection_priority": [
+    {"provider":"openrouter","reason":"simplest auth (key only), catalog confirms free tier, 401=auth-only not structural failure","status":"NOT_CONFIGURED — requires key setup"},
+    {"provider":"pollinations","reason":"free provider externally known, 400=fixed mapping needed","status":"NOT_CONFIGURED — requires model alias mapping"},
+    {"provider":"cloudflare-playground","reason":"NOAUTH, only needs correct model alias/config","status":"NOT_CONFIGURED — needs mapping"},
+    {"provider":"devin-cli-agentic","reason":"NOAUTH, needs provider/model prefix mapping","status":"NOT_CONFIGURED — needs mapping"},
+    {"provider":"together","reason":"catalog/reference free tier, 401=auth only","status":"NOT_CONFIGURED — requires key"}
+  ],
+  "benchmark_scores": "NONE INVENTED; ranking=NOT DETERMINED; only verified DB/state evidence used",
+  "free_auto_integration": {
+    "gateway_preserved":"free-auto (port 4100)",
+    "opencode_preserved":true,
+    "omniroute_gateway_doc":"lib/free_auto/omniroute-upstream.json",
+    "verified_free_json":"lib/free_auto/omniroute-verified-free.json",
+    "model_registry_mutation":"NONE (verified_models=0, no unverified insertion)",
+    "ranking":"lib/free_auto/omniroute-ranking.md (NOT DETERMINED / 0 verified)"
+  },
+  "next_action": "Configure one verified connection, verify with /v1/chat/completions 200, then add ONE model to FREE-AUTO. No automatic connection performed."
+}
