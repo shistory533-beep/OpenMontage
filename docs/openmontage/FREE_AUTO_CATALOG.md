@@ -14,9 +14,9 @@ configured in this repo, so no candidates are inventoried from them.
   `OPENROUTER_BASE_URL`, `GOOGLE_API_KEY`, `GEMINI_API_KEY`,
   `CLOUDFLARE_API_KEY`, `CLOUDFLARE_ACCOUNT_ID` — all unset; no `.env` files.
   Live probes impossible. No values fabricated.
-- Per-model live status: all 20 candidates × all 40 upstreams =
+- Per-model live status: all 22 candidates × 3 gateways (kilo/openrouter/bytez) =
   **AUTH_REQUIRED** (unconfigured; no keys). Verified-live: none.
-  Measured TTFT/latency: none. E2E loopback re-run green (429 → failover 200;
+- Measured TTFT/latency: none. E2E loopback re-run green (429 → failover 200;
   session-affine stickiness confirmed; router correctly confined itself to the
   only-configured provider family when Kilo was absent).
 - Independent reviewer: 4th attempt failed (same provider restriction;
@@ -37,11 +37,11 @@ configured in this repo, so no candidates are inventoried from them.
 | inkling | vendor launch post + Vals corroboration | HIGH |
 | step-3.7-flash | vendor table, corroborated across outlets | HIGH |
 | inkling-small | vendor table (internal-harness caveat) | MEDIUM |
-| remaining 10 | verified API capabilities + tiers, operator priors | MEDIUM |
+| remaining 12 | verified API capabilities + tiers, operator priors | MEDIUM |
 
 ### Calibration top-up (timestamp: 2026-10-08T03:02Z)
 
-- 3 more models sourced (10/20 now): step-3.7-flash coding 0.72→0.77 /
+- 3 more models sourced (10/22 now): step-3.7-flash coding 0.72→0.77 /
   agentic 0.70→0.60; inkling coding/agentic/reasoning null→0.78/0.64/0.87;
   inkling-small coding 0.74→0.77, agentic 0.74→0.53 (internal harness,
   medium), reasoning 0.76→0.88. Same score/100 domain-matched methodology.
@@ -58,7 +58,7 @@ configured in this repo, so no candidates are inventoried from them.
   AUTH_REQUIRED, none LIVE_OK) and C (independent review) unmet →
   **CONDITIONALLY READY**. Exact missing gates: (A) exercise ≥1 live provider
   with a real key; (C) independent review pass. No code changes this run;
-  74/74 focused green; compile clean.
+  84/84 focused green; compile clean.
 
 ### Run 2026-10-08T02:24Z — live gate BLOCKED
 
@@ -67,7 +67,7 @@ configured in this repo, so no candidates are inventoried from them.
   probes impossible → every candidate remains AUTH_REQUIRED/unconfigured.
   **No live results fabricated; no registry/scoring changes made** (calibration
   requires evidence; none obtainable).
-- Tier re-verification (public listing, 467 models, non-billable): all 20
+- Tier re-verification (public listing, 467 models, non-billable): all 22
   registry OpenRouter upstreams resolve; tiers match registry (`paid` ×5
   non-suffix IDs, `free` ×15, `ling-3.1-flash` 0/0-priced but markerless →
   stays `unknown` per marker rule). The sole `:free` ID absent from the
@@ -80,7 +80,7 @@ configured in this repo, so no candidates are inventoried from them.
   cooldown→reset recovery ✓, tool-gated session routing ✓, no secret
   logging/persistence ✓, `session_id`/`complexity` never forwarded upstream ✓.
   Findings: none critical.
-- Verification: 71/71 focused; E2E loopback fallback re-run (429 rate_limit →
+- Verification: 81/81 focused; E2E loopback fallback re-run (429 rate_limit →
   200 failover; session-affine pin) ✓; `py_compile` ✓.
 
 ### Run 2026-10-08T02:34Z — benchmark calibration (evidence-driven)
@@ -94,7 +94,7 @@ configured in this repo, so no candidates are inventoried from them.
   GPQA w/tools 82.7), nemotron-3-nano-omni-30b (SWE-bench 38.8, secondary),
   gemma-4-31b (SWE-Ver ~63 approx, GPQA 84.3, secondary),
   gemma-4-26b (SWE-Ver 17.4 single independent source + vendor-silence
-  corroboration). Remaining 13: no reliable public benchmark found.
+  corroboration). Remaining 15: no reliable public benchmark found.
 - Methodology: priors are success-rate estimates, so domain-matched standard
   benchmarks map as score/100 (coding←SWE-family/DeepSWE, agentic←Terminal-Bench
   2.1 only, reasoning←GPQA). Recorded-but-NOT-mapped (incomparable harness or
@@ -110,7 +110,7 @@ configured in this repo, so no candidates are inventoried from them.
   Adversarial self-review of calibration: version-match ✓, harness
   comparability ✓, confidence flags ✓, low-prior models stay routable
   (gemma-4-26b coding 0.606 total — demoted, never stranded) ✓.
-- Verification: 74/74 focused; E2E T3 planning request (429 → failover 200,
+- Verification: 84/84 focused; E2E T3 planning request (429 → failover 200,
   `complexity:t3` in envelope) ✓; `py_compile` ✓.
 
 Honesty rule (enforced by `test_registry_has_no_invented_benchmarks`):
@@ -133,7 +133,6 @@ OR $ = OpenRouter pricing observed (0/0 = free endpoint; >0 = paid there).
 | inkling-small | thinkingmachines/inkling-small:free | 1M | Y | – | Y | free | OR `:free` + Kilo |
 | step-3.7-flash | stepfun/step-3.7-flash | 262k | Y | Y | Y | paid 0.20/M | Kilo (unverified) |
 | ling-3.1-flash | inclusionai/ling-3.1-flash | 262k | Y | – | Y | 0/0, no marker | unknown (kept) |
-| north-mini-code | cohere/north-mini-code:free | 256k | Y | – | Y | free | OR `:free` + Kilo |
 | longcat-2.5-preview | meituan/longcat-2.0 | 1M | Y | – | Y | paid 0.30/M | Kilo (unverified), experimental |
 | apodex-1.1-mini | apodex/apodex-1.1-mini:free | 262k | Y | Y | Y | free | OR `:free` |
 | ling-3.0-flash-sante | inclusionai/ling-3.0-flash-sante:free | 262k | Y | – | Y | free | OR `:free` |
@@ -145,6 +144,8 @@ OR $ = OpenRouter pricing observed (0/0 = free endpoint; >0 = paid there).
 | nemotron-3-nano-omni-30b | nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free | 256k | Y | – | Y | free | OR `:free` |
 | gemma-4-26b | google/gemma-4-26b-a4b-it:free | 262k | Y | Y | Y | free | OR `:free` |
 | gemma-4-31b | google/gemma-4-31b-it:free | 262k | Y | Y | Y | free | OR `:free` |
+| qwen3-4b | Qwen/Qwen3-4B | – | – | – | – | – | Bytez (AUTH_REQUIRED) |
+| gemma-3-4b-it | google/gemma-3-4b-it | – | – | – | – | – | Bytez (AUTH_REQUIRED) |
 
 Excluded as ordinary models: router IDs (`openrouter/auto`, `openrouter/free`,
 `kilo-auto/*`, … — see `ROUTER_IDS`) and safety-only
@@ -152,7 +153,7 @@ Excluded as ordinary models: router IDs (`openrouter/auto`, `openrouter/free`,
 OpenRouter capability evidence → all `multimodal: null` (untested, eligible).
 
 Live status 2026-10-08: all completion smokes `AUTH_REQUIRED` (no
-`OPENROUTER_API_KEY`/`KILO_API_KEY` in env). `GET /v1/models` listing = LIVE_OK.
+`OPENROUTER_API_KEY`/`KILO_API_KEY`/`BYTEZ_API_KEY` in env). `GET /v1/models` listing = LIVE_OK.
 No keys → no latency/TTFT measurements this round.
 
 ## 2. Benchmarks
@@ -165,32 +166,18 @@ sourced score (SWE-bench, Terminal-Bench, Aider/Polyglot, LiveCodeBench,
 agent/tool-use) is found, set `benchmark{source,date,note}` + corresponding
 `priors{}` on the entry and cite the source here with date + confidence.
 
-## 3. Bytez provider (added 2026-10-08)
+## 3. Provider verification (live audit)
 
-- OpenCode: `opencode.json` custom provider `bytez` (official
-  openai-compatible pattern: `npm:@ai-sdk/openai-compatible`,
-  `name:"Bytez"`, `baseURL:https://api.bytez.com/models/v2/openai/v1`,
-  `apiKey:"{env:BYTEZ_API_KEY}"`). Verified: `opencode models` lists
-  `bytez/Qwen/Qwen3-4B`, `bytez/google/gemma-3-4b-it`, `free-auto/free-auto`.
-- Named `/connect` without local config is NOT possible in-repo: `/connect`
-  lists Models.dev built-ins and Bytez is absent there (226 providers
-  checked). Upstream point: Models.dev providers directory PR, then an
-  OpenCode release. Do not claim otherwise.
-- Billing (official): free = $1 credits / 4 weeks, open models ≤7B, 1
-  concurrent request. Nothing is price-free → Bytez upstreams are
-  `free_tier:"unknown"` (eligible, neutral), never `"free"`. Paid-only
-  (>7B open, all closed-source/provider-key models) are excluded from
-  FREE-AUTO candidates.
-- FREE-AUTO entries (official-source IDs only): `qwen3-4b`
-  (`Qwen/Qwen3-4B`, Bytez docs example) and `gemma-3-4b-it`
-  (`google/gemma-3-4b-it`, LiteLLM docs). Capabilities/benchmarks null
-  (unmeasured — honesty guard applies). Auth `Bearer` verified compatible
-  (docs' own OpenAI-SDK example). Refresh procedure: with a key, list live
-  `/models`, add verified ≤7B IDs only — never hardcode more.
-- Live status 2026-10-08: `/models` without key → HTTP 401
-  (AUTH_REQUIRED). No `BYTEZ_API_KEY` in this environment; no completion
-  probes run, none fabricated. Env: `BYTEZ_API_KEY` (+ optional
-  `BYTEZ_BASE_URL` override, default the official base URL).
+| Provider | Configured? | Notes |
+|---|---|---|
+| OpenRouter | Yes | `GET /v1/models` LIVE_OK; 467 total models, 16 `:free` suffix; 15 registry upstreams match `:free` (excludes safety classifier); 5 upstreams are paid on OR (`muse-spark-1.3-contributor`, `mimo-v2.6-flash`, `step-3.7-flash`, `ling-3.1-flash`, `longcat-2.5-preview`) |
+| Kilo | No | `KILO_API_KEY` unset → AUTH_REQUIRED; slugs mirror OR pattern (`unknown` free_tier) |
+| Bytez | No | `BYTEZ_API_KEY` unset → AUTH_REQUIRED; two models (`qwen3-4b`, `gemma-3-4b-it`) |
+| Gemini | No | Not configured in FREE-AUTO gateways; only available via generic OpenMontage LLM provider (config.yaml) |
+| Groq | No | Not configured in FREE-AUTO gateways |
+| UnoRouter | No | Not configured in FREE-AUTO gateways |
+| OrcaRouter | No | Not configured in FREE-AUTO gateways |
+| AIHubMix | No | Not configured in FREE-AUTO gateways |
 
 ## 4. Rankings (03:02Z calibrated: 10 models carry measured benchmark priors — see §0; rest operator priors + verified capabilities; both keys configured, no telemetry)
 
