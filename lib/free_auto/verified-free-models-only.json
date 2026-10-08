@@ -1,0 +1,48 @@
+{
+  "audit_timestamp": "2026-10-08T10:17:36Z",
+  "omniroute_version": "3.8.51",
+  "omniroute_build": "c1e30b7",
+  "runtime_state": "healthy (port 20128 listening; server started)",
+  "db_provider_connections_active": 0,
+  "verified_models": [],
+  "verified_requests_total_success_200": 0,
+  "verified_requests_total_errors": 9,
+  "evidence_files_read": [
+    "lib/free_auto/omniroute-verified-free.json",
+    "lib/free_auto/omniroute-upstream.json",
+    "lib/free_auto/omniroute-ranking.md",
+    "docs/omniroute-integration.md",
+    "docs/omniroute-free-provider-priority.md",
+    "docs/omniroute-api-key-top50.md",
+    "tests/smoke_omniroute_full.py",
+    "tests/smoke_omniroute_upstream.py"
+  ],
+  "genuinely_free_verified_models": [],
+  "excluded_providers_and_reasons": [
+    {"provider": "openrouter", "reason": "401 - No active credentials (DB connection 0); not verified FREE", "evidence": "omniroute-verified-free.json"},
+    {"provider": "together", "reason": "401 - No active credentials", "evidence": "omniroute-verified-free.json"},
+    {"provider": "groq", "reason": "401 - No active credentials", "evidence": "omniroute-verified-free.json"},
+    {"provider": "gemini-api", "reason": "401 - No active credentials", "evidence": "omniroute-verified-free.json"},
+    {"provider": "pollinations", "reason": "400 - Invalid alias / no verified model mapping", "evidence": "omniroute-verified-free.json"},
+    {"provider": "cloudflare-workers", "reason": "401 - No active credentials", "evidence": "omniroute-verified-free.json"},
+    {"provider": "opencode", "reason": "FREE contract note unverified locally (no 200 at localhost:20128); verified_models empty", "evidence": "docs/omniroute-free-provider-priority.md; omniroute-verified-free.json"},
+    {"provider": "devin-cli-agentic", "reason": "400 - Unknown provider/model prefix", "evidence": "omniroute-verified-free.json"},
+    {"provider": "cloudflare-playground", "reason": "400 - Unknown provider/model mapping", "evidence": "omniroute-verified-free.json"},
+    {"provider": "auto/catalog", "reason": "502 - Routes to auth-required upstreams; no verified free upstream", "evidence": "omniroute-verified-free.json; omniroute-upstream.json"}
+  ],
+  "lists": {
+    "top_50_genuinely_free_models": [],
+    "top_20_best_free_coding_models": [],
+    "top_20_best_free_reasoning_models": [],
+    "top_10_best_free_agent_tool_models": [],
+    "top_10_largest_recurring_free_quotas": []
+  },
+  "notes": [
+    "No quotas invented. No free tiers fabricated.",
+    "Only evidence: verified_models=[], DB connections=0, all inference attempts 401/400/502.",
+    "To add a verified free model: (a) configure provider connection; (b) run real /v1/chat/completions; (c) confirm 200; (d) add to verified-free.json; (e) update ranking.",
+    "Excluded: all trial-credit, one-time-credit, unknown-status, deprecated-tier references."
+  ],
+  "verified_by": "Direct file read + endpoint health check (localhost:20128) + smoke-test evidence",
+  "status_summary": "0 genuinely verified recurring-free models available. All candidates EXCLUDED."
+}

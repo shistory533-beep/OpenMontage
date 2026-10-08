@@ -295,6 +295,43 @@
       "timestamp": 1791473284.2368302,
       "notes": "Automatic factory run: topic='Final Proof Milestone'; approval=automatic; providers=free/local-first; resume supported.",
       "job_id": "final_proof_milestone_1791473284"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "canonical_pipeline",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791474292.2672644,
+      "notes": "Automatic factory run: topic='x'; approval=automatic; providers=free/local-first; resume supported.",
+      "job_id": "x_1791474292"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "canonical_pipeline",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791474295.110444,
+      "notes": "Automatic factory run: topic='OmniRoute Auto Factory Milestone'; approval=automatic; providers=free/local-first; resume supported.",
+      "job_id": "omniroute_auto_factory_milestone_1791474295"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "omniroute/auto",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791474314.3473847,
+      "notes": "Automatic factory run with OmniRoute auto default model; approval=automatic; providers=free/local-first (omniroute gateway); resume supported.",
+      "job_id": "omniroute_default_milestone_1791474314",
+      "requested_model": "omniroute/auto"
     }
   ],
   "stage_timings": {

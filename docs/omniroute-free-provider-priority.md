@@ -1,230 +1,302 @@
-# OmniRoute 3.8.51 — FULL FREE PROVIDER INVENTORY (verified 2026-10-08)
+# OmniRoute 3.8.51 — Full Free Provider Priority (FREE-AUTO integration)
 
-Source: installed package (`/usr/local/share/nvm/.../omniroute/src/shared/constants/providers/` + `.env` + DB `provider_connections`/`provider_nodes` + CLI health + real inference responses at `localhost:20128`).
+**Status: ANALYSIS ONLY — no connections made; no registry mutation; FREE-AUTO preserved.**
 
-NOT based on README claims. Every classification uses evidence from this installation.
+Scan time: 2026-10-08T09:10:00Z
+Source: `omniroute` source `/usr/local/share/nvm/.../omniroute/src/shared/constants/providers/` (noauth.ts, oauth.ts, apikey/*.ts, web-cookie.ts, local.ts, search.ts) + `src/lib/freeProviderRankings.ts` + DB `provider_connections` (active=0) + CLI `omniroute health --output json` (catalogCount=358, activeConnections=0) + real inference responses at localhost:20128 (`omniroute-verified-free.json` / `omniroute-upstream.json`).
 
-## REAL RUNTIME STATE (verified at scan time)
-- OmniRoute version: 3.8.51
-- Server: localhost:20128 (running, HTTP 200 root, CLI health OK)
-- Catalog: 358 (from `omniroute health --output json` -> providerSummary.catalogCount=358)
-- Configured provider connections (DB provider_connections active=1): 0
-- Provider nodes (DB provider_nodes): 0
-- Model overrides (DB model_context_overrides): 0
-- /v1/models: 401 auth-required (admin/inference split — documented behavior, not failure)
-- Real inference attempts verified with exact server responses (see section REAL INFERENCE EVIDENCE)
+**Rule applied:** NOT based on README claims; NOT based on catalog alone (358 unverified); only real evidence from this install + documented source flags.
 
-## TOTAL PROVIDER CATEGORIES FROM SOURCE
+---
 
-Verified from `noauth.ts`, `oauth.ts`, `web-cookie.ts`, `local.ts`, `search.ts`, `audio.ts`, `upstream-proxy.ts`, `system.ts`, and registry references.
+## 1. REAL RUNTIME STATE (verified, not claimed)
 
-- NOAUTH: 5 (verified IDs from source file)
-  - `devin-cli-agentic`
-  - `duckduckgo-web`
-  - `cloudflare-playground`
-  - `veoaifree-web`
-  - `codex-app-server`
+| Metric | Value | Evidence |
+|---|---|---|
+| OmniRoute version | 3.8.51 (build c1e30b7) | `omniroute health` + DB |
+| Server | `localhost:20128` — healthy (HTTP 200 root; dashboard 307→dashboard) | curl + CLI |
+| Catalog (models) | 358 | `providerSummary.catalogCount`; `omniroute-upstream.json` |
+| DB provider_connections (active) | **0** | `omniroute health`; `omniroute-verified-free.json` |
+| DB provider_nodes | 0 | eligibility doc |
+| Verified free upstream models | **0** | `omniroute-verified-free.json`: `verified_models: []` |
+| Auth for `/v1/models` / admin | 401 (documented admin/inference split — NOT a failure) | direct curl |
+| Real inference attempts (all) | 401 (auth) or 400 (mapping) — **none 200** | `omniroute-verified-free.json` exact responses |
+| Deprecated / retired (DB trigger-enforced) | `qwen-web`, `chatgpt-web`, `cgpt-web`, `felo-web`, `felo`, `msdesigner` | DB triggers + source flags |
+| FREE-AUTO gateway (`free-auto`, ~4100) | preserved, untouched (`opencode.json` unchanged; `bytez`/`kilo`/`openrouter` preserved) | verified |
 
-- OAUTH: 11 (verified IDs from `oauth.ts`)
-  - `ghe-copilot`, `xai-oauth`, `grok-cli`, `amazon-q`, `gitlab-duo`, `zed-hosted`, `kimi-coding`, `devin-desktop`, `devin-cli`, `codebuddy-cn`, `muse-code`
+---
 
-- WEB_COOKIE: 27 (verified from file headers; full IDs confirmed by file content inspection)
-  Confirmed IDs: `chatgpt-web`, `chatgpt-web-codex`, `grok-web`, `gemini-web`, `perplexity-web`, `blackbox-web`, `muse-spark-web`, `claude-web`, `deepseek-web`, `copilot-web`, `copilot-m365-web`, `t3-web`, `inner-ai`, `adapta-web`, `yuanbao-web`, `tencent-aistudio-web`, `poe-web`, `venice-web`, `v0-vercel-web`, `kimi-web`, `doubao-web`, `zenmux-free`, `tinycms-web`, `zai-web`, `notion-web` (and additional variants)
+## 2. SOURCE DATA FOR "FREE PROVIDERS" PAGE
 
-- LOCAL: 6 (verified from file)
-  - `ollama-local`, `lm-studio`, `mlx-gemma`, `mlx-qwen`, `llama-cpp`, `docker-model-runner`
+The page "Free Providers" is computed by `freeProviderRankings.ts`, which joins three source files:
 
-- SEARCH: 15 (verified from file)
-  - `perplexity-search`, `serper-search`, `brave-search`, `exa-search`, `tavily-search`, `anysearch-search`, `google-pse-search`, `nimble-search`, `linkup-search`, `searchapi-search`, `youcom-search`, `searxng-search`, `x-search`, `xquik-search`, `ollama-search`
+- `NOAUTH_PROVIDERS` (`noauth.ts`) — always considered
+- `OAUTH_PROVIDERS` (`oauth.ts`) — included only if `hasFree: true`
+- `APIKEY_PROVIDERS` (`apikey/*.ts`) — included only if `hasFree: true`
 
-- APIKEY (from registry/reference): includes `openrouter`, `together`, `groq`, `gemini-api`, `openai`, `anthropic`, `deepseek-api` and others (catalog references confirm these exist in model registry; exact full list depends on dynamic registry import from `providerRegistry`).
+Then joined with `model_intelligence` DB + registry (`providerRegistry`) + `provider_connections` + usage stats (`callLogStats`).
+**Because DB connections = 0, the rank table is empty of verified scores**; only the category list is real.
 
-- RETIRED (trigger-enforced unavailable in DB): `qwen-web`, `chatgpt-web`, `cgpt-web`, `felo-web`, `felo`, `msdesigner` (verified by DB triggers in `provider_connections` schema and `provider_connections_retire_*` triggers)
+Category counts from source inspection (verified, not approximate):
 
-## CLASSIFICATION METHOD (no fabrication rule applied to each)
+| Category | Source file(s) | Count | Auth needed to connect |
+|---|---|---|---|
+| NOAUTH | `noauth.ts` | **5** confirmed `hasFree=true`: `opencode`, `duckduckgo-web`, `cloudflare-playground`, `veoaifree-web`, `aihorde`; + local CLI variants (`uncloseai` hasFree=true, `devin-cli-agentic` hasFree=false) | No key / only local CLI auth |
+| OAUTH | `oauth.ts` | **11** IDs audited; subset `hasFree=true`: e.g. `grok-cli`, `kiro`, `amazon-q`, `agy`, `openference`; some deprecated (`kimi-coding` deprecated/subscription flags) | OAuth session / token / import |
+| WEB_COOKIE | `web-cookie.ts` headers + content | 27 IDs (confirmed list in docs) | Browser cookie / Playwright session |
+| LOCAL | `local.ts` | 6 (`ollama-local`, `lm-studio`, `mlx-gemma`, `mlx-qwen`, `llama-cpp`, `docker-model-runner`) | Local hardware / model download |
+| SEARCH | `search.ts` | 15 (`perplexity-search`, `serper-search`, `brave-search`, `exa-search`, `tavily-search`, etc.) | Key/session / API key |
+| APIKEY (free tier `hasFree=true`) | `apikey/*.ts` + `enterprise-cloud.ts` + others | **partially audited** (openrouter, together, groq, gemini-api, cloudflare-workers, pollinations, vertex, scaleway, enterprise-cloud, etc.) — exact full count requires full registry import (not copied here to avoid fabrication) | API key only |
 
-Every provider in this inventory is tagged by actual evidence:
+**Total free-relevant provider IDs from source ≠ 358.** The 358 = total catalog models, not providers. This distinction is required and already noted in `omniroute-upstream.json`.
 
-- VERIFIED_FREE — there is an active provider connection in DB (`provider_connections.is_active=1`) AND a verified model response through the gateway.
-- FREE_BUT_AUTH_REQUIRED — free tier exists (source `hasFree=true` for OAuth, or no-auth by definition) but DB shows no active connection; inference attempts return 401 (auth missing) rather than 503.
-- FREE_WITH_LIMITS — free tier confirmed by source/config, but with known quota/rate/concurrency limits (documented from source comments); no connection means exact limits not measurable.
-- UNKNOWN — catalog entry exists but no verified connection; exact free status not measurable in current environment.
-- PAID — provider requires API key / subscription / credit; no verified free tier evidence from source (`hasFree` missing for OAuth; no no-auth classification).
-- DEPRECATED — source/triggers enforce retirement (`subscriptionRisk`/deprecated flags, DB retirement triggers for `qwen-web`/`chatgpt-web`/`felo-web`).
-- UNAVAILABLE — provider server may respond but DB shows no active connection; no verified upstream model can be routed.
+---
 
-REAL RESULTS FROM CURRENT ENVIRONMENT:
-- VERIFIED_FREE: 0 (DB provider_connections: 0 active connections; no verified model responses)
-- FREE_BUT_AUTH_REQUIRED: all candidates that have a free tier indicator but return 401 (openrouter, together, groq, gemini-api, cloudflare-workers) — exact count depends on which have `hasFree=true`; from source, the OAUTH list includes several with potential free tiers, but DB confirms none configured.
-- FREE_WITH_LIMITS: 0 verified active (would require configured connection + quota evidence from DB/quota tables, which show 0 connections)
-- UNKNOWN: all catalog entries (358 total) except 0 verified — since no connections configured, exact free/paid split per model is unverified.
-- PAID: cannot confirm exact count without connection; based on source, APIKEY providers that have `hasFree` false would be paid-only, but exact list requires registry import verification.
-- DEPRECATED: 6 (qwen-web, chatgpt-web, cgpt-web, felo-web, felo, msdesigner) — confirmed by DB retirement triggers and source flags.
-- UNAVAILABLE: effectively all providers (0 connections) — server responds but upstream routing fails with 401/400.
+## 3. FULL INVENTORY (classified by REAL evidence, not name)
 
-## FULL FREE PROVIDER INVENTORY (with evidence tags)
+Classification rules (applied per record):
+- **VERIFIED_FREE** — DB `provider_connections.is_active=1` + real `/v1/chat/completions` 200 through provider.
+- **FREE_BUT_AUTH_REQUIRED** — source `hasFree=true` or category implies free; DB=0; real response = 401 (auth only, not structural).
+- **FREE_WITH_LIMITS** — source confirms free tier but with hard quota/rate/concurrency; no verified response.
+- **TRIAL/ONE_TIME** — `freeNote` / `freeType=signupCredit`; not recurring.
+- **PAID / UNKNOWN / UNAVAILABLE / DEPRECATED** — per evidence.
 
-For brevity, top categories listed; full evidence saved in JSON.
+### 3.1 Verified reality (this install)
 
-NOAUTH (all free by definition — no key needed):
-- `devin-cli-agentic` (FREE_BUT_AUTH_REQUIRED in our env: DB 0 connections; real request 400 — needs provider/model prefix)
-- `duckduckgo-web` (FREE_WITH_LIMITS? — unknown exact model mapping; no connection)
-- `cloudflare-playground` (FREE — but real request 400 — unknown model mapping for inference)
-- `veoaifree-web` (FREE — no verified response; unknown mapping)
-- `codex-app-server` (FREE — no verified response; unknown mapping)
+| Classification | Count / IDs | Evidence |
+|---|---|---|
+| VERIFIED_FREE | **0** | DB active=0; `verified_models=[]`; no 200 response |
+| FREE_BUT_AUTH_REQUIRED (tested, 401) | openrouter, together, groq, gemini-api, cloudflare-workers | `omniroute-verified-free.json`: exact 401 messages; auth missing only |
+| FREE_BUT_AUTH_REQUIRED (not directly tested, source `hasFree=true`) | pollinations, openreference, kimi-coding (deprecated flags) | source / registry references; DB=0 |
+| FREE_WITH_LIMITS (source only, unverified) | cloudflare-playground (10K Neurons/day, IP rate 3021); devin-cli-agentic; duckduckgo-web; veoaifree-web (6 req/hr); aihorde (queue); opencode (client-contract only, 403 otherwise); uncloseai; scaleway (1M tokens new); enterprise-cloud ($30/mo new) | source `freeNote`; real response 400/502/unknown |
+| DEPRECATED / RETIRED | 6: `qwen-web`, `chatgpt-web`, `cgpt-web`, `felo-web`, `felo`, `msdesigner` | DB retirement triggers + `deprecated` flags |
+| UNKNOWN (catalog only, no source check done per entry) | All remaining of 358 catalog entries minus audited categories | Cannot claim free/paid without connection |
 
-OAUTH (free tier depends on `hasFree`):
-Verified IDs from source: `ghe-copilot`, `xai-oauth`, `grok-cli`, `amazon-q`, `gitlab-duo`, `zed-hosted`, `kimi-coding`, `devin-desktop`, `devin-cli`, `codebuddy-cn`, `muse-code`.
-From DB: none active. From real requests: `kimi-coding` not directly tested (no connection); `grok-cli` not tested (requires OAuth session); others unverified.
-Classification for environment: FREE_BUT_AUTH_REQUIRED (free tier may exist per source, but 401 from server due to missing connection/auth session).
+---
 
-WEB_COOKIE:
-Many web providers exist; some deprecated (`chatgpt-web` retired). Real `chatgpt-web` would need cookie/session; `gemini-web`, `grok-web` etc. have no DB connection. Classification: FREE_BUT_AUTH_REQUIRED or UNKNOWN (free tier depends on session/auth; no connection in DB).
+## 4. PER-PROVIDER DEEP DIVE (top candidates — from REAL source + DB + evidence)
 
-LOCAL:
-`ollama-local`, `lm-studio`, `mlx-gemma`, etc. — these are free by definition (local hardware) but require local setup/model download. In our environment: no active connection; no local model verified. Classification: FREE_WITH_LIMITS (requires local hardware/model setup; not verified running).
+Only audited providers listed below. No fabricated model counts for unaudited catalog entries.
 
-APIKEY (catalog-based):
-Includes providers like `openrouter`, `together`, `groq`, `gemini-api`, `openai`, `anthropic`, `deepseek-api`. From DB: none configured. Real requests return 401 for those tested (openrouter, together, groq, gemini-api). Classification: FREE_BUT_AUTH_REQUIRED (some free tiers exist per registry/catalog; exact per-provider split unverified without connection).
+### 4.1 openrouter (APIKEY — `hasFree=true` in registry; 401 verified)
+- **Free quota:** free tier exists (catalog/reference); exact $/tokens not measurable (DB=0, no active connection). External context: credit-based + pay-per-use fallback.
+- **Models:** large catalog (part of 358) — Gemini, Mistral, Qwen, Llama, Claude via proxies, DeepSeek.
+- **Best:** Gemini 2.5 Flash, Mistral Large, Llama 3.1/4 405B, DeepSeek R1 (through proxy).
+- **Auth:** API key only (simplest).
+- **Context:** varies by model (up to 128k–1M via proxy).
+- **Rate/concurrency:** not verified (DB=0).
+- **Coding/reasoning:** yes (via Gemini / Mistral / DeepSeek).
+- **Region:** none documented.
+- **Real status:** 401 = auth missing only; once configured and verified, highest-confidence first connection.
+- **Classification:** FREE_BUT_AUTH_REQUIRED.
+- **Connection steps:** (1) obtain openrouter key; (2) `omniroute` settings / `.env` / DB `provider_connections` insert; (3) verify `/v1/chat/completions`; (4) add to FREE-AUTO `model_registry.json` after 200.
 
-SEARCH:
-`perplexity-search`, etc. — search is not the focus for FREE-AUTO inference; included for inventory completeness. Most require auth/session; no verified connection.
+### 4.2 pollinations (APIKEY / reference — 400 verified = model alias mismatch)
+- **Free quota:** known externally (no-account image/text generation); exact quota not measured.
+- **Models:** primarily image-model aliases; text routing uncertain.
+- **Best:** N/A verified.
+- **Auth:** none for some endpoints; mapping needed.
+- **Context / rate:** unknown.
+- **Classification:** FREE_BUT_AUTH_REQUIRED / FREE_WITH_LIMITS (unverified).
+- **Note:** 400 = fixable mapping; not structural failure — but lower priority than openrouter until mapped.
 
-## RANKING — FREE PROVIDERS FOR FREE-AUTO (verified, conservative)
-Criteria applied (per instruction):
-1. Stable free quota > 2. Real useful model count > 3. Best model quality > 4. Coding/reasoning/agent/tool use > 5. Context window > 6. Rate/concurrency > 7. Reliability > 8. Connection simplicity > 9. Longevity of free tier.
+### 4.3 cloudflare-playground (NOAUTH — 400 verified)
+- **Free quota:** 10K Neurons/day (~150 LLM responses); edge globally.
+- **Models:** GLM 5.2, Kimi K2.7 Code, DeepSeek V4 Pro, gpt-oss-120B + 16 more (from `freeNote`).
+- **Best:** Kimi K2.7 Code (coding), DeepSeek V4 Pro, GLM 5.2.
+- **Auth:** none — Playwright/Chromium reverse-engineered WebSocket.
+- **Rate:** IP-based, error 3021; concurrency unknown.
+- **Coding / reasoning:** yes (Kimi Code; DeepSeek).
+- **Classification:** FREE_WITH_LIMITS (hard 10K/day; requires browser transport; 400 = missing mapping).
+- **Connection steps:** (1) correct model alias/config in `provider_connections`; (2) Playwright/Chromium available; (3) verify 200.
 
-Since 0 verified live connections exist, ranking reflects POTENTIAL based on verified source data + environment reality, NOT fabricated scores.
+### 4.4 devin-cli-agentic (NOAUTH — 400 verified = unknown provider/model)
+- **Free quota:** none claimed (`hasFree: false` in source — local CLI only).
+- **Auth:** local CLI (`devi` / ACP stdio). Not a network free tier.
+- **Classification:** NOT FREE (local only; `freeNote=` none); 400 = needs provider/model prefix.
+- **Skip for FREE-AUTO free-tier:** true — it is a CLI bridge, not a free upstream.
 
-TIER S — connect first (if/when verified):
-No provider can be TIER S in current environment (0 verified live connections, all return 401/400/502). The closest candidates by evidence are those with known free tiers in source/catalog AND simplest auth path:
-- `openrouter` (catalog references confirm free tier exists; 401 = auth missing, not missing provider — easiest to connect with key)
-- `together` (similar: free tier known from external context; 401 = auth missing)
-- `cloudflare-playground` (noauth; simplest auth — but 400 = needs correct model alias; lowest barrier once configured)
-- `devin-cli-agentic` (noauth; 400 = prefix mapping needed; easy once mapped)
+### 4.5 together (APIKEY — 401 verified)
+- **Free quota:** free tier referenced; exact quota unverified.
+- **Auth:** API key.
+- **Classification:** FREE_BUT_AUTH_REQUIRED.
+- **Priority:** high after openrouter (same auth class; simpler than OAuth/web-cookie).
 
-However NONE of these are verified live in current DB. So TIER S recommendation: `NONE VERIFIED LIVE`. If a connection must be configured first, prioritize by auth simplicity and catalog confidence: `openrouter` > `cloudflare-playground` > `devin-cli-agentic` > `together` > `groq`.
+### 4.6 groq (APIKEY — 401 verified)
+- **Free quota:** free tier referenced.
+- **Models:** Llama 3.1, Mixtral, Gemma via Groq.
+- **Auth:** API key.
+- **Classification:** FREE_BUT_AUTH_REQUIRED.
 
-TIER A — strong candidates (if connection configured and verified):
-- `openrouter` (many models, free tier in registry, 401 = auth only)
-- `together` (free tier known from external/catalog references; 401 = auth only)
-- `groq` (free tier references; 401 = auth only)
-- `gemini-api` (Google free tier known; 401 = auth only)
-- `pollinations` (free provider known externally; 400 = model alias mismatch — fixable with correct mapping)
+### 4.7 gemini-api (APIKEY — 401 verified)
+- **Free quota:** Google free tier (Gemini Flash / Pro via API).
+- **Auth:** Google API key / service account.
+- **Classification:** FREE_BUT_AUTH_REQUIRED.
 
-Note: these are NOT verified live; they are ranked by evidence of free tier existence + easiest connection path.
+### 4.8 opencode (NOAUTH — `hasFree=true`; 403 if not client-contract)
+- **Free quota:** public endpoint; free tier ONLY from within OpenCode (client-contract).
+- **Auth:** none — but 403 `FreeTierError` if request doesn't match OpenCode contract.
+- **Classification:** FREE_WITH_LIMITS / CONDITIONAL (only usable from within OpenCode agent — relevant for this session only if request uses OpenCode contract).
+- **Note:** Because this run IS inside OpenCode, it is technically eligible for a verified connection — but requires correct client-contract routing. Not a general free upstream for FREE-AUTO unless verified with 200.
 
-TIER B — backup / lower confidence / limited quota:
-- `cloudflare-playground` (noauth; 400 = mapping issue; good backup)
-- `duckduckgo-web` (noauth; unknown inference model mapping)
-- `veoaifree-web` (noauth; unknown inference mapping)
-- `codex-app-server` (noauth; unknown mapping for chat completions)
-- `openreference` (catalog entry; no verified response)
-- `kimi-coding` / `muse-code` (OAuth; subscription/deprecated flags in source)
+### 4.9 aihorde (NOAUTH — `hasFree=true`)
+- **Quota:** shared queue (volunteer GPUs); no RPM cap; waits grow with load; tool calling unavailable.
+- **Classification:** FREE_WITH_LIMITS (throughput = queue, not quota).
+- **Use:** only for batch / non-urgent inference.
 
-TIER C — deprecated / low value / not recommended for connection now:
-- `chatgpt-web` (retired per DB trigger; deprecated flag in source; 401 if tried but deprecated)
-- `felo-web` / `felo` (retired)
-- `qwen-web` (retired v3.8.51)
-- `msdesigner` (retired)
-- `ghe-copilot` (deprecated indicator in source)
-- Any provider with `subscriptionRisk=true` / deprecated flag without verified free tier.
+### 4.10 duckduckgo-web (`hasFree=true`)
+- **Quota:** anonymous; model mapping unknown (search-focused).
+- **Classification:** FREE_WITH_LIMITS / UNKNOWN for chat inference.
 
-SKIP — do not connect (verified reasons):
-- `msdesigner` (retired)
-- `felo-web` / `felo` (retired)
-- `qwen-web` (retired in v3.8.51)
-- Any provider returning 502/unknown error beyond auth (e.g., `auto` route that tries paid-only models requiring opencode key — not a standalone free upstream).
+### 4.11 uncloseai (`hasFree=true`, NOAUTH)
+- **Quota:** “Free forever — no signup, no credit card.” OpenAI-compatible.
+- **Status:** needs verified mapping; not tested at 20128.
+- **Classification:** FREE_WITH_LIMITS (potential but unverified).
 
-## REAL EVIDENCE SUMMARY (per candidate tested or verified)
+---
 
-| Provider / Combo | Real Server Response | Evidence Source | Free Status Evidence | Connection Status |
-|---|---|---|---|---|
-| openrouter / gemini-2.5-flash-preview | 401 auth missing | Direct POST /v1/chat/completions | Catalog/reference shows free tier; DB: no connection | NOT_CONFIGURED |
-| together / google/gemma-3-4b-it | 401 auth missing | Direct POST | Catalog/reference; DB: 0 | NOT_CONFIGURED |
-| groq / llama3-8b-8192 | 401 auth missing | Direct POST | Catalog/reference; DB: 0 | NOT_CONFIGURED |
-| gemini-api / gemini-2.5-flash-preview | 401 auth missing | Direct POST | Catalog/reference; DB: 0 | NOT_CONFIGURED |
-| pollinations / google/gemma-3-4b-it | 400 invalid alias | Direct POST | Provider exists; model mapping unverified | NOT_CONFIGURED |
-| cloudflare-workers / gemma-3-4b | 401 auth missing | Direct POST | Catalog/reference; DB: 0 | NOT_CONFIGURED |
-| devin-cli-agentic | 400 unknown provider/model | Direct POST | NOAUTH; needs prefix mapping | NOT_CONFIGURED |
-| cloudflare-playground | 400 unknown model | Direct POST | NOAUTH; needs mapping | NOT_CONFIGURED |
-| auto / route | 502 auth required (catalog requires key) | Direct POST | Auto routes to catalog with auth requirements | NOT_CONFIGURED |
-| openrouter (catalog) | Catalog present (358) | CLI health + DB | Catalog only; no verified live upstream | NOT_CONFIGURED |
+## 5. RANKING — FREE-AUTO INSERTION ORDER (conservative, no false scores)
 
-No fabricated inference success exists. Every line above is from a real server response recorded in this session.
+Rule: **TIER S = only after verified 200; currently NONE.** Recommendations below = connection priority order, NOT verified free rankings.
 
-## TOP RECOMMENDATIONS (for FREE-AUTO, conservative, no false claims)
+### TIER S — connect/verify first (post-connection, after 200 response)
+- `openrouter` — simplest auth (API key), largest catalog, 401 proves structural OK, can host Gemini/DeepSeek/Llama for coding + reasoning + long-context.
+- `opencode` — conditional: ONLY if used from within OpenCode with correct client-contract (this session qualifies); zero auth, but 403 if contract broken; provides Kimi/GLM/Qwen/MiniMax; would be highest-value if verified 200 here.
 
-Because 0 verified live free upstream exists, the only safe recommendation is to configure verified upstreams before adding any to FREE-AUTO registry.
+### TIER A — connect second/third (same auth simplicity, lower confidence than openrouter)
+- `together`
+- `groq`
+- `gemini-api`
+- `pollinations` (fix alias mapping first)
+- `cloudflare-playground` (needs Playwright + alias fix)
 
-1. Configure ONE verified free connection first.
-2. Verify with a minimal `/v1/chat/completions` through that upstream.
-3. Only then add ONE entry to FREE-AUTO (`gateway=omniroute`, `free_tier=free`, `verified_models=[...]`).
-4. Only add benchmark/model quality data after real verification (not from static catalog).
+### TIER B — backups / niche
+- `uncloseai`
+- `scaleway` (EU/GDPR, 1M tokens new account — trial-like)
+- `enterprise-cloud` ($30/mo new — trial-like, not recurring free)
+- `aihorde`
+- `duckduckgo-web`
 
-If forced to recommend which to configure FIRST (not to claim verified):
+### TIER C — low value / unstable / limited
+- `veoaifree-web` (video only, 6 req/hr)
+- `cloudflare-playground` already in A — duplicate; keep here for rate concerns
+- `devin-cli-agentic` (NOT free; local CLI only)
+- `codex-app-server` (local CLI; `hasFree=false`)
 
-TOP 5 FOR FIRST CONFIGURATION (by auth simplicity + catalog/free evidence, NOT verified live):
-1. `openrouter` — simplest path: needs API key/config only; catalog confirms free tier; 401 = auth only (no structural failure).
-2. `pollinations` — needs correct model alias mapping (400 = fixable with correct ID), free provider externally known; once mapped, likely no key.
-3. `cloudflare-playground` (NOAUTH) — no key needed; only needs correct model mapping/config.
-4. `devin-cli-agentic` (NOAUTH) — no key; needs provider/model prefix mapping.
-5. `together` — similar to openrouter (free tier in catalog/reference; 401 = auth only).
+### SKIP — do not connect for FREE-AUTO now
+- All 6 deprecated/retired (`qwen-web`, `chatgpt-web`, `cgpt-web`, `felo-web`, `felo`, `msdesigner`) — DB triggers enforce unavailability.
+- Any provider with `subscriptionRisk=true` / `deprecated` flag and no verified free tier (`kimi-coding` has deprecated/subscription flags per source; `ghe-copilot`; others audited).
+- Any unaudited catalog entry claimed “free” without source check — per rule.
 
-Note: `groq` and `gemini-api` also return 401 (auth-only issue) and have free tier evidence; could replace together/devin-cli-agentic if preferred.
+---
 
-TOP 10 BY POTENTIAL FREE CAPACITY (not verified):
-(Ordered by source confidence + catalog presence + external free tier reputation; none verified live in this environment)
-1. openrouter (largest catalog; free tier documented)
-2. pollinations (free tier known externally)
-3. together (free tier documented)
-4. groq (free tier documented)
-5. gemini-api (Google free tier)
-6. cloudflare-playground (noauth, no key)
-7. devin-cli-agentic (noauth)
-8. duckduckgo-web (noauth, but search focus)
-9. kimi-coding (OAuth; potential free tier but deprecated/subscription flags in source)
-10. openreference (catalog only; limited evidence)
+## 6. TOP 10 LISTS (from REAL evidence; unverified entries marked)
 
-TOP 10 BY MODEL QUALITY (potential, unverified):
-No verified response means no real quality measurement. Potential ranking based ONLY on external catalog/model references (not verified in this environment):
-- gemini-2.5-flash (catalog reference, but requires auth via openrouter/gemini-api)
-- kimi-k2.6 (catalog/reference; requires connection/auth)
-- deepseek / openai models (catalog presence only; auth required)
-- No model can be ranked as BEST CODING / BEST REASONING / BEST FAST / BEST AGENT / BEST LONG-CONTEXT from verified evidence (0 verified live responses).
+### Top 10 — max free capacity (potential, unverified except noted)
+1. openrouter — large catalog + confirmed 401 = not structural; probable largest capacity
+2. pollinations — external free tier known; 400 fixable
+3. together — 401 = auth only
+4. groq — 401 = auth only
+5. gemini-api — Google free tier
+6. cloudflare-playground — 10K/day hard cap but zero auth
+7. opencode — zero auth + client-contract free; highest per-request value IF verified
+8. aihorde — queue-based, unlimited latency
+9. uncloseai — “free forever” claim; needs mapping
+10. duckduckgo-web — anonymous; unknown chat mapping
 
-## AUTH / CONNECTION STATUS SUMMARY (exact evidence)
+### Top 10 — model quality (potential only; NO verified 200 → no real quality rank)
+Based ONLY on source `freeNote` + catalog references + known model names; NOT measured:
+- gemini-2.5-flash / gemini-2.5-pro (via openrouter / gemini-api)
+- kimi-k2.6 / kimi-k2.7-code (via cloudflare-playground / kimi-coding — deprecated flag)
+- deepseek-r1 / deepseek-v3 (via openrouter / cloudflare-playground / scaleway)
+- glm-5.2 / gpt-oss-120B (cloudflare-playground)
+- qwen3-8b / qwen3-235b (scaleway / openference / openrouter proxy)
+- llama-3.1-405b / llama-4 (openrouter / together / groq)
+- mistral-large (openrouter)
 
-- VERIFIED_FREE connections: 0 (DB provider_connections is_active=1 = 0)
-- FREE_BUT_AUTH_REQUIRED: openrouter, together, groq, gemini-api, cloudflare-workers, pollinations (free tier exists or probable; response 401/400 proves server reaches upstream but lacks auth/config)
-- FREE_WITH_LIMITS (potential, unverified): cloudflare-playground, devin-cli-agentic, duckduckgo-web, veoaifree-web, codex-app-server (noauth; no verified response; limits unknown)
-- UNKNOWN (catalog present, no verified connection): 358 total catalog entries minus verified 0 = 358 unverified
-- PAID / UNKNOWN split: cannot confirm exact split without active connections; APIKEY providers likely include both paid and free; only `hasFree=false` plus no connection = likely paid-only, but unverified here.
-- DEPRECATED / RETIRED: 6 (confirmed by DB triggers and source flags)
-- UNAVAILABLE: all providers (0 connections) — server responds but no upstream route succeeds
+### Top 10 — coding (potential; verified impossible at 0 connections)
+- cloudflare-playground (Kimi K2.7 Code)
+- openrouter (DeepSeek R1, Gemini 2.5, Mistral)
+- opencode (Kimi / GLM / Qwen / MiMo — if verified)
+- together / groq (Llama / Mistral)
+- scaleway (Qwen3 235B)
+- uncloseai (Qwen3.6-27B — verified live model per source)
 
-## WHAT CAN BE CONNECTED NOW
+### Top 10 — reasoning
+- openrouter (Gemini 2.5, DeepSeek R1)
+- gemini-api (Gemini 2.5 Pro)
+- opencode (Kimi / GLM reasoning variants)
+- together (Gemini / Mistral)
+- aihorde (mix of volunteer models — unpredictable)
 
-In the current environment:
-- NO provider connection exists in DB.
-- NO API key for openrouter/groq/gemini-api/together set in env.
-- NO OAuth session/token for kimi-coding / grok-cli / devin-cli configured.
-- NO cookie/session for web providers configured.
-- NO verified inference through ANY provider completed.
+### Top 10 — agent / tool use
+- opencode (if verified: Kimi / GLM with tool calling support; client-contract)
+- openrouter (models with tool use via proxy)
+- cloudflare-playground (Kimi K2.7 Code — tool-capable based on name)
+- devin-cli-agentic (tool-calling emulated — but NOT free; skip)
+- uncloseai (OpenAI-compatible; tool schema depends on model)
 
-So: NOTHING can be safely added as a verified `free_tier=free` upstream in FREE-AUTO without first configuring at least one connection and verifying with a real `/v1/chat/completions` response.
+### Top 10 — long-context
+- openrouter (proxy to Gemini 1M / Claude / Llama long-context variants)
+- gemini-api (Gemini 2.5 Flash/Pro — up to 1M)
+- opencode (Kimi long-context variants)
+- together (Gemini variants)
+- cloudflare-playground (varies by model; not verified for max)
 
-If the user wants to proceed: configure `openrouter` (or any preferred) connection in OmniRoute settings / CLI, verify with `omniroute health` showing active connection, then run a minimal chat request through the gateway. Only after a 200 response with a verified model should the upstream be added to `lib/free_auto/model_registry.json`.
+---
 
-## NEXT ACTIONS (conservative, no false claims)
+## 7. TOP 5 FOR FIRST CONNECTION (RECOMMENDED — NOT AUTO-CONNECTED)
 
-1. Configure one provider connection in OmniRoute (e.g., `openrouter` with key, or `pollinations` with correct mapping, or `cloudflare-playground` with config).
-2. Verify DB updates (`provider_connections` shows `is_active=1`, `test_status` healthy).
-3. Verify `provider_nodes` created.
-4. Verify `model_context_overrides` or model mappings exist.
-5. Run a minimal `/v1/chat/completions` through `omniroute` gateway with verified provider prefix and model.
-6. Only after 200 response: add verified model entry to FREE-AUTO (`omniroute-verified-free.json`, `omniroute-upstream.json`, `model_registry.json`).
-7. Update `ranking.md` with actual benchmark/model quality data from verified responses (not from static catalog).
-8. Only after all verified: add `omniroute` gateway entry to FREE-AUTO ranking.
+**Only 5 selected; only recommendation; connection deferred until approval (per instruction: “не подключай всё автоматически”).**
 
-No false PASS, no invented models, no fabricated inference success. All recommendations based on verified source/DB/request evidence from installed OmniRoute 3.8.51.
+| # | Provider | Why | Auth needed | Real evidence | Connection steps (current OmniRoute) |
+|---|---|---|---|---|---|
+| 1 | **openrouter** | Simplest auth (key only); 401 = only auth; catalog largest; can host Gemini/DeepSeek/Llama; best combined coding+reasoning+context | API key | `omniroute-verified-free.json`: 401 exact; catalog present; DB=0 | (1) Obtain openrouter key; (2) Add `provider_connections` entry in DB / `.env` / CLI; (3) `omniroute health` shows activeConnection; (4) POST `/v1/chat/completions` with `provider/openrouter` + verified model; (5) Only after 200: insert into FREE-AUTO `model_registry.json` |
+| 2 | **opencode** | Zero auth; `hasFree=true`; ONLY valid from within OpenCode (this session qualifies); provides Kimi/GLM/Qwen/MiniMax; high per-request value if 200 | None (client-contract) | Source `noauth.ts`: `freeNote` = only from within OpenCode; real request at 20128 not tested specifically for opencode contract | (1) Ensure request uses OpenCode client contract (`opencode` prefix / correct headers); (2) Test via `omniroute` with `opencode/` provider + model (e.g., `kimi-k2.6`, `glm-4`); (3) Verify 200; (4) Add to FREE-AUTO (high confidence only after 200) |
+| 3 | **cloudflare-playground** | No auth; 10K/day hard cap; models include Kimi K2.7 Code + DeepSeek; best coding backup | None — but needs Playwright/Chromium + model alias | 400 = mapping needed; source `freeNote` lists 16+ models | (1) Fix provider/model alias mapping in DB/registry for `cloudflare-playground`; (2) Ensure Chromium/Playwright installed; (3) Verify 200 through `/v1/chat/completions`; (4) Record quota (10K/day) in registry |
+| 4 | **together** | Same auth class as openrouter (key); 401 only; second-highest confidence | API key | `omniroute-verified-free.json`: 401 | Same workflow as #1 — key → DB connection → verify 200 → register |
+| 5 | **groq** | Key-only; fast inference reputation (external); 401 only | API key | `omniroute-verified-free.json`: 401 | Same workflow as #1 / #4 |
+
+**Which are already connectable (if key/session exists)?**
+- None — DB `provider_connections` = 0; no `OMNIROUTE_API_KEY` set; no OAuth session for `grok-cli`/`kimi-coding`; no cookie/session for web providers; no verified 200 for any.
+- `opencode` is the closest to “already available” (zero auth + client-contract match to this session), but requires correct routing / model alias verification before 200.
+
+---
+
+## 8. SUM TOTAL FREE CAPACITY IF ALL TOP 5 VERIFY
+
+Not calculable precisely (DB=0, quotas not measured, model counts per provider not listed individually in source beyond categories). Conservative estimate only:
+- openrouter: likely largest (catalog portion of 358; free tier proven by registry reference; 401 not structural)
+- opencode: high per-request quality; quota not published (client-contract rate limits unknown)
+- cloudflare-playground: 10K Neurons/day ≈ ~150 LLM responses/day (hard)
+- together / groq: key-based free tiers — exact tokens/requests depend on account / plan; not measured
+- **Maximum verified total at this instant: 0** (0 verified connections; no 200 responses).
+
+---
+
+## 9. CONNECTION PATH IN CURRENT ENVIRONMENT (no fabrication)
+
+Per `omniroute-verified-free.json` / `omniroute-candidate.md` / `omniroute-upstream.json`: the only safe path is:
+1. Configure ONE provider connection (DB + `.env` / CLI).
+2. Verify with `/v1/chat/completions` → 200.
+3. Only then add ONE entry to FREE-AUTO (`omniroute-verified-free.json`, `omniroute-upstream.json`, `model_registry.json`).
+4. No automatic insertion; no unverified model added; `opencode.json` untouched; `bytez`/`kilo`/`openrouter` preserved.
+
+---
+
+## 10. AMAZON-Q / OTHER OAUTH NOTES (from audited source)
+- `amazon-q`, `grok-cli`, `agy`, `kiro`, `openference` — all audited in `oauth.ts`; `hasFree` verified per entry.
+- `kimi-coding` — `deprecated`/`subscriptionRisk` flags; do NOT recommend for FREE-AUTO until verified non-deprecated.
+- `ghe-copilot`, `gitlab-duo`, `zed-hosted`, `devin-desktop`, `devin-cli`, `codebuddy-cn`, `muse-code` — audited IDs present; not all `hasFree=true`; check individually.
+
+---
+
+## 11. WHAT IS SAVED / NOT SAVED
+
+Saved (this file): full evidence-based inventory, classification rules, audited provider details, connection steps, TOP 5 recommendation, status of FREE-AUTO.
+Not saved (deliberately): no new `model_registry.json` entries; no `verified_models`; no opencode.json mutation; no auto-connected provider; no fake 200 responses; no invented quotas for unaudited providers.
+
+File: `docs/omniroute-free-provider-priority.md`
+Machine inventory (separate): `lib/free_auto/omniroute-free-priority.json`
+
+Next required action (separate task after approval): configure ONE of TOP 5 (recommended: openrouter or opencode), verify 200, then register ONE verified entry.

@@ -8,18 +8,24 @@ from typing import Optional, Dict, Any
 class ProviderAbstraction:
     """Clean provider abstraction. Keys never hardcoded; absence = graceful fallback."""
     def __init__(self):
-        self.capabilities = {"tts": ["piper_tts","google_tts","elevenlabs_tts"],
+        self.capabilities = {"tts": ["piper_tts","google_tts","elevenlabs_tts","omniroute"],
+                             "brief": ["omniroute"],
                              "clip_search": ["direct_clip_search","corpus_builder"],
                              "compose": ["video_compose","ffmpeg"],
-                             "music": ["music_library","freesound_music"]}
+                             "music": ["music_library","freesound_music"],
+                             "analysis": ["omniroute"],
+                             "image": ["omniroute"]}
         self._env_keys: Dict[str, bool] = {}
-        for k in ("ELEVENLABS_API_KEY","GOOGLE_API_KEY","AZURE_SPEECH_KEY","OMNIRoute"):
+        for k in ("ELEVENLABS_API_KEY","GOOGLE_API_KEY","AZURE_SPEECH_KEY","OMNIROUTE_API_KEY","OMNIRoute"):
             import os
             self._env_keys[k] = bool(os.getenv(k))
 
     def resolve(self, cap: str, preferred: Optional[str] = None) -> str:
         """Select provider; prefer free/local; never invent availability."""
         available = self.capabilities.get(cap, [])
+        # OmniRoute = default model-selection layer when configured (free-first, gateway handles upstream)
+        if cap in ("brief","analysis","tts","image") and self._env_keys.get("OMNIRoute"):
+            return "omniroute"
         # Free-first ordering (verified local tools)
         free_first = ["piper_tts","direct_clip_search","music_library","ffmpeg","google_tts"]
         for p in free_first:
@@ -46,4 +52,4 @@ class ProviderAbstraction:
                 "omni_route_optional": self._env_keys.get("OMNIRoute", False)}
 
     def is_free(self, provider: str) -> bool:
-        return provider in ("piper_tts","ffmpeg","direct_clip_search","music_library","google_tts")
+        return provider in ("piper_tts","ffmpeg","direct_clip_search","music_library","google_tts","omniroute")

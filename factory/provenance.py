@@ -8,7 +8,8 @@ class ProvenanceLog:
         self.entries: List[Dict[str, Any]] = []
     def log_step(self, stage: str, provider: str, model: Optional[str] = None,
                  artifact: Optional[str] = None, duration_s: float = 0.0,
-                 fallback: bool = False, free: bool = True, error: Optional[str] = None):
+                 fallback: bool = False, free: bool = True, error: Optional[str] = None,
+                 requested_role: Optional[str] = None):
         self.entries.append({
             "stage": stage,
             "provider": provider,
@@ -18,6 +19,7 @@ class ProvenanceLog:
             "fallback": fallback,
             "free": free,
             "error": error,
+            "requested_role": requested_role,
             "timestamp": time.time(),
         })
     def to_json(self, path: str):

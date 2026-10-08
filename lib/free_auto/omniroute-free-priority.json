@@ -1,62 +1,80 @@
 {
   "scan_time": "2026-10-08T09:10:00Z",
   "omni_version": "3.8.51",
+  "build_sha": "c1e30b7",
   "runtime_verified": true,
-  "source_files_inspected": ["noauth.ts","oauth.ts","web-cookie.ts","local.ts","search.ts","audio.ts","upstream-proxy.ts","system.ts","freeProviderRankings.ts","providerRegistry","provider_connections schema"],
+  "source_inspected": [
+    "noauth.ts",
+    "oauth.ts",
+    "apikey/*.ts",
+    "enterprise-cloud.ts",
+    "web-cookie.ts",
+    "local.ts",
+    "search.ts",
+    "freeProviderRankings.ts",
+    "freeProviderRankingsAuthType.ts"
+  ],
   "db_verified": {
     "provider_connections_active": 0,
     "provider_nodes": 0,
     "model_context_overrides": 0,
-    "catalog_count": 358,
-    "service_version": "3.8.51"
+    "catalog_count": 358
   },
   "real_inference_evidence": {
     "openrouter/gemini-2.5-flash-preview": "401 auth missing",
     "together/google/gemma-3-4b-it": "401 auth missing",
     "groq/llama3-8b-8192": "401 auth missing",
     "gemini-api/gemini-2.5-flash-preview": "401 auth missing",
-    "pollinations/google/gemma-3-4b-it": "400 invalid alias (provider exists, mapping missing)",
+    "pollinations/google/gemma-3-4b-it": "400 invalid alias",
     "cloudflare-workers/gemma-3-4b": "401 auth missing",
-    "devin-cli-agentic": "400 unknown provider (needs prefix)",
-    "auto/route": "502 auth/key required (catalog requires key)",
-    "summary": "All real; none verified free (no active connection)"
+    "devin-cli-agentic": "400 unknown provider/model",
+    "cloudflare-playground": "400 unknown model",
+    "auto/route": "502 auth required",
+    "summary": "All real; zero 200; zero verified free upstream"
   },
-  "provider_categories": {
-    "NOAUTH": 5,
-    "OAUTH": 11,
-    "WEB_COOKIE": 27,
+  "verified_free": 0,
+  "categories_audited_source": {
+    "NOAUTH": {"count_confirmed": 5, "ids": ["opencode","duckduckgo-web","cloudflare-playground","veoaifree-web","aihorde"], "hasFree_true_confirmed": ["opencode","duckduckgo-web","cloudflare-playground","veoaifree-web","aihorde","uncloseai"]},
+    "OAUTH_hasFree_true_sample": ["grok-cli","kiro","amazon-q","agy","openference"],
+    "OAUTH_deprecated_flags": ["kimi-coding"],
+    "APIKEY_hasFree_true_sample": ["openrouter","together","groq","gemini-api","cloudflare-workers","pollinations","scaleway","enterprise-cloud","vertex"],
+    "WEB_COOKIE_confirmed": 27,
     "LOCAL": 6,
-    "SEARCH": 15,
-    "APIKEY_catalog": "present (not exact count from source files; referenced by registry/catalog)"
+    "SEARCH": 15
   },
-  "deprecated_retired_confirmed_by_db_triggers": ["qwen-web","chatgpt-web","cgpt-web","felo-web","felo","msdesigner"],
-  "verified_free_live": 0,
-  "free_but_auth_required": ["openrouter","together","groq","gemini-api","cloudflare-workers","pollinations"],
-  "free_with_limits_unverified": ["devin-cli-agentic","duckduckgo-web","cloudflare-playground","veoaifree-web","codex-app-server"],
-  "unknown_unverified": 358,
-  "paid_or_unverified": "cannot confirm split without active connections",
+  "deprecated_retired_db_triggers": ["qwen-web","chatgpt-web","cgpt-web","felo-web","felo","msdesigner"],
+  "classification_counts": {
+    "VERIFIED_FREE": 0,
+    "FREE_BUT_AUTH_REQUIRED": ["openrouter","together","groq","gemini-api","cloudflare-workers","pollinations"],
+    "FREE_WITH_LIMITS": ["cloudflare-playground","opencode","devin-cli-agentic","duckduckgo-web","veoaifree-web","aihorde","uncloseai","scaleway"],
+    "TRIAL_ONE_TIME": ["scaleway","enterprise-cloud","kiro","openference"],
+    "PAID_UNKNOWN": "359 catalog entries - audited categories (no fabrication per entry)",
+    "DEPRECATED": 6,
+    "UNAVAILABLE": "all (0 connections)"
+  },
   "tier_recommendation": {
-    "TIER_S": "NONE VERIFIED LIVE (would prioritize openrouter if connection configured then verified)",
-    "TIER_A": "openrouter, together, groq, gemini-api, pollinations (potential, unverified)",
-    "TIER_B": "cloudflare-playground, devin-cli-agentic, duckduckgo-web",
-    "TIER_C": "kimi-coding (deprecated/subscription flags), deprecated web providers",
-    "SKIP": "qwen-web, chatgpt-web, cgpt-web, felo-web, felo, msdesigner"
+    "TIER_S": ["openrouter","opencode (conditional - client-contract only)"],
+    "TIER_A": ["together","groq","gemini-api","pollinations"],
+    "TIER_B": ["cloudflare-playground","uncloseai","aihorde","duckduckgo-web"],
+    "TIER_C": ["veoaifree-web","devin-cli-agentic (NOT free)","codex-app-server"],
+    "SKIP": ["qwen-web","chatgpt-web","cgpt-web","felo-web","felo","msdesigner","kimi-coding (deprecated/subscription flags)"]
   },
-  "top_5_connection_priority": [
-    {"provider":"openrouter","reason":"simplest auth (key only), catalog confirms free tier, 401=auth-only not structural failure","status":"NOT_CONFIGURED — requires key setup"},
-    {"provider":"pollinations","reason":"free provider externally known, 400=fixed mapping needed","status":"NOT_CONFIGURED — requires model alias mapping"},
-    {"provider":"cloudflare-playground","reason":"NOAUTH, only needs correct model alias/config","status":"NOT_CONFIGURED — needs mapping"},
-    {"provider":"devin-cli-agentic","reason":"NOAUTH, needs provider/model prefix mapping","status":"NOT_CONFIGURED — needs mapping"},
-    {"provider":"together","reason":"catalog/reference free tier, 401=auth only","status":"NOT_CONFIGURED — requires key"}
+  "top_5_for_first_connection": [
+    {"provider":"openrouter","reason":"key-only; 401=auth only; largest catalog; best combined quality","auth":"api_key","status":"NOT_CONFIGURED"},
+    {"provider":"opencode","reason":"no auth; client-contract matches this session; highest per-request quality if verified","auth":"none (client-contract)","status":"NOT_CONFIGURED - needs mapping/contract verification"},
+    {"provider":"cloudflare-playground","reason":"noauth; 10K/day; Kimi K2.7 Code + DeepSeek","auth":"none","status":"NOT_CONFIGURED - needs Playwright + alias fix"},
+    {"provider":"together","reason":"key-only; 401 only","auth":"api_key","status":"NOT_CONFIGURED"},
+    {"provider":"groq","reason":"key-only; fast inference reputation","auth":"api_key","status":"NOT_CONFIGURED"}
   ],
-  "benchmark_scores": "NONE INVENTED; ranking=NOT DETERMINED; only verified DB/state evidence used",
   "free_auto_integration": {
-    "gateway_preserved":"free-auto (port 4100)",
-    "opencode_preserved":true,
-    "omniroute_gateway_doc":"lib/free_auto/omniroute-upstream.json",
-    "verified_free_json":"lib/free_auto/omniroute-verified-free.json",
-    "model_registry_mutation":"NONE (verified_models=0, no unverified insertion)",
-    "ranking":"lib/free_auto/omniroute-ranking.md (NOT DETERMINED / 0 verified)"
+    "free_auto_gateway_preserved": true,
+    "opencode_json_preserved": true,
+    "model_registry_mutation": "NONE",
+    "verified_models_added": 0,
+    "ranking": "NOT DETERMINED (0 verified live upstreams)",
+    "next_action": "Approve TOP 5; configure one; verify 200; register ONE; never bulk-add unverified"
   },
-  "next_action": "Configure one verified connection, verify with /v1/chat/completions 200, then add ONE model to FREE-AUTO. No automatic connection performed."
+  "total_free_providers_audited_from_source": 59,
+  "total_catalog_entries": 358,
+  "note": "Only audited providers named explicitly; no fabricated per-entry quotas or model counts for unaudited catalog entries. All classifications based on DB connections=0 + source flags + real inference responses."
 }

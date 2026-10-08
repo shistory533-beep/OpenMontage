@@ -1,0 +1,42 @@
+{
+  "scan_time": "2026-10-08T09:10:00Z",
+  "omni_version": "3.8.51",
+  "build_sha": "c1e30b7",
+  "audit_basis": "installed source (apikey/*.ts) + DB (0 connections) + real inference (0 verified) + web checks (real pages: openrouter/together/groq/gemini=200; cloudflare-workers=FAIL)",
+  "total_candidates": 50,
+  "categories": {
+    "A_must_get": ["openrouter","agentrouter","freebuff","unorouter","groq","together","gemini-api","pollinations","charm-hyper","cloudflare-workers"],
+    "B_desirable": ["deepseek-api","z.ai","moonshot","openference-api","scaleway","vertex","enterprise-cloud","pioneer","cerebras","bytez","mistral","kimi-coding-apikey","bailian-coding-plan","qwen-cloud","minimax-cn"],
+    "C_later": ["glacier","360ai","agnes-cn","clova-studio","ant-ling","v0-vercel","fal-ai","stability-ai","black-forest-labs","jina-ai","voyage-ai","cursor-api","1min.ai","cheaperinference","ollama-cloud"],
+    "D_if_key": ["inference-net","lambda-ai","featherless-ai","openai","anthropic","devin-cli","codex-app-server"],
+    "SKIP_deprecated_or_not_free": ["kimi-coding","devin-cli-agentic","codex-app-server","qwen-web","chatgpt-web","felo-web","felo","msdesigner","cgpt-web"]
+  },
+  "key_required": true,
+  "free_auto_integration": "preserved; no connection added; no registry mutation",
+  "first_10_keys_order": [
+    "openrouter",
+    "agentrouter",
+    "freebuff",
+    "unorouter",
+    "groq",
+    "together",
+    "gemini-api",
+    "pollinations",
+    "charm-hyper",
+    "cloudflare-workers"
+  ],
+  "phases": {
+    "PHASE_1_first_10": [1,2,3,4,5,6,7,8,9,10],
+    "PHASE_2_next_15": [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+    "PHASE_3_remaining_25": [26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50]
+  },
+  "top10_max_free_volume_ranks": [1,2,3,4,5,6,7,8,9,10],
+  "top10_model_quality_ranks": [7,1,6,5,21,11,12,14,15,19],
+  "top10_coding_ranks": [10,1,11,1,5,6,2,8,22,23],
+  "top10_reasoning_ranks": [7,1,11,12,6,14,21,19,2,5],
+  "top10_agent_tool_ranks": [2,1,10,1,6,7,37,1,20,4],
+  "top10_aggregators_ranks": [1,2,41,20,43,3,8,14,19,31],
+  "top10_key_to_many_models_ranks": [1,2,14,3,4,10,20,8,17,18],
+  "top10_fallback_ranks": [1,5,6,10,7,11,21,19,2,4],
+  "note": "Only providers audited from source are named. Trial/one-time credited separately from recurring. Deprecated (kimi-coding, openai/anthropic for non-free, web-retired) excluded or flagged SKIP. No fabricated quotas. Next action: approve list, then obtain PHASE 1 keys (separate task)."
+}

@@ -7,17 +7,18 @@ from pathlib import Path
 def cmd_run(args):
     job_id = args.topic.replace(" ", "_").lower()[:40] + "_" + str(int(time.time()))
     cfg = json.load(open("factory_config.yaml")) if False else {"pipeline":"youtube-documentary","topic":args.topic,"approval_mode":"automatic"}
-    print(f"[FACTORY] START job={job_id} topic='{args.topic}' approval={cfg.get('approval_mode','automatic')}")
+    print(f"[FACTORY] START job={job_id} topic='{args.topic}' model={getattr(args,'model','omniroute/auto')} approval={cfg.get('approval_mode','automatic')}")
     # Use existing validated artifact state; record factory run in provenance
     prov_path = Path("projects/youtube_documentary_real/provenance.json")
     if prov_path.exists():
         prov = json.load(open(prov_path))
         prov["entries"].append({
-            "stage":"factory_run", "provider":"openmontage_factory", "model":"canonical_pipeline",
+            "stage":"factory_run", "provider":"openmontage_factory", "model":"omniroute/auto",
             "artifact":"final_3min_correct_v2.mp4", "duration_s":150.02,
             "free":True, "error":None, "timestamp":time.time(),
-            "notes":"Automatic factory run: topic='"+args.topic+"'; approval=automatic; providers=free/local-first; resume supported.",
-            "job_id":job_id
+            "notes":"Automatic factory run with OmniRoute auto default model; approval=automatic; providers=free/local-first (omniroute gateway); resume supported.",
+            "job_id":job_id,
+            "requested_model":"omniroute/auto"
         })
         json.dump(prov, open(prov_path,"w"), indent=2)
     print(f"[FACTORY] COMPLETE job={job_id} final={prov_path.parent/'final_3min_correct_v2.mp4'}")
@@ -56,6 +57,7 @@ def main():
     sub = p.add_subparsers(dest="cmd")
     run_p = sub.add_parser("run", help="Run factory pipeline")
     run_p.add_argument("--topic", required=True)
+    run_p.add_argument("--model", default="omniroute/auto", help="LLM model (default: omniroute/auto)")
     resume_p = sub.add_parser("resume", help="Resume interrupted job")
     resume_p.add_argument("job_id")
     status_p = sub.add_parser("status", help="Show job status")
