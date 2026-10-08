@@ -224,6 +224,17 @@
       "fallback": false,
       "free": true,
       "timestamp": 1791463898.9579341
+    },
+    {
+      "stage": "milestone_13_final",
+      "provider": "ffmpeg+amix+subtitles",
+      "model": "libx264/piper/narration_3min",
+      "artifact": "final_3min_correct_final.mp4",
+      "duration_s": 150.0,
+      "fallback": false,
+      "free": true,
+      "timestamp": 1791465635.6365376,
+      "notes": "Video 100.3s stream, container 150s, audio 150s (narration 93s + music loop 150s), subtitles cover 93s, 1920x1080, H.264/AAC, 8+ segments, zero paid APIs."
     }
   ],
   "stage_timings": {
