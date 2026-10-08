@@ -18,6 +18,19 @@
         }
       }
     },
+    "omniroute": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OmniRoute",
+      "options": {
+        "baseURL": "http://localhost:20128/v1",
+        "apiKey": "{env:OMNIROUTE_API_KEY}"
+      },
+      "models": {
+        "omniroute/auto": {
+          "name": "omniroute/auto"
+        }
+      }
+    },
     "bytez": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Bytez",
