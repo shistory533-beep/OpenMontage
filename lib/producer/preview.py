@@ -154,6 +154,13 @@ def render_preview(preview_timeline: dict[str, Any],
               "narration_audio_verified": narration_ok,
               "ready_for_review": ready,
               "captions_path": ""}
+    # L4: validate on the production path — a malformed preview report
+    # fails the stage instead of flowing downstream.
+    try:
+        from schemas.artifacts import validate_artifact
+        validate_artifact("preview_report", report)
+    except Exception as exc:
+        raise PreviewError(f"Preview report invalid: {exc}") from exc
     return report
 
 

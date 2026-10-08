@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/narration_manifest",
+  "title": "Narration Manifest",
+  "description": "One verified TTS asset per script section. Produced by the narration stage via TTS Hub; silence is never a valid stem.",
+  "type": "object",
+  "required": ["version", "sections"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "tracks": { "type": "integer", "minimum": 1 },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["section_id", "asset_id", "duration_seconds"],
+        "properties": {
+          "section_id": { "type": "string", "minLength": 1 },
+          "asset_id": { "type": "string", "minLength": 1 },
+          "path": { "type": "string" },
+          "duration_seconds": { "type": "number", "exclusiveMinimum": 0 },
+          "checksum": { "type": "string" },
+          "voice": { "type": "string" },
+          "provider": { "type": "string" },
+          "source_tool": { "type": "string" },
+          "text": { "type": "string" },
+          "alignment": { "type": "array" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "voice": { "type": "string" },
+    "provider": { "type": "string" }
+  },
+  "additionalProperties": true
+}

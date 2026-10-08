@@ -71,6 +71,12 @@ def assemble_review_package(
         raise ReviewError(
             f"Review package incomplete, cannot mark READY_FOR_REVIEW: "
             f"missing {missing}.")
+    # L4: validate on the production path.
+    try:
+        from schemas.artifacts import validate_artifact
+        validate_artifact("review_package", package)
+    except Exception as exc:
+        raise ReviewError(f"Review package invalid: {exc}") from exc
     return package
 
 
@@ -126,6 +132,12 @@ def record_decision(workdir: Path, *, episode_id: str, decision: str,
                            rationale=rationale.strip(),
                            timestamp=_utcnow(), episode_id=episode_id,
                            video_path=video_path)
+    # L4: validate the persisted decision on the production path.
+    try:
+        from schemas.artifacts import validate_artifact
+        validate_artifact("review_decision", entry.to_dict())
+    except Exception as exc:
+        raise ReviewError(f"Review decision invalid: {exc}") from exc
     path = review_log_path(workdir)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "a", encoding="utf-8") as f:

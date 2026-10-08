@@ -39,6 +39,10 @@ ARTIFACT_NAMES = [
     "review_decision",
     "review_package",
     "thumbnail_set",
+    "narration_manifest",
+    "footage_report",
+    "audio_mix",
+    "analytics_report",
 ]
 
 

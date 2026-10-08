@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/analytics_report",
+  "title": "Analytics Report",
+  "description": "Post-publish metrics or, before data exists, an explicit collection plan. Analytics never runs before publish/export.",
+  "type": "object",
+  "required": ["version"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "episode_id": { "type": "string" },
+    "metrics": { "type": "object" },
+    "collection_plan": { "type": "object" },
+    "collected_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

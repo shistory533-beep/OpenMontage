@@ -76,7 +76,14 @@ def build(producer: Any) -> dict[str, StageHandler]:
 
 
 def run_narration(ctx: StageContext, cfg: dict[str, Any]) -> dict[str, Any]:
-    """Synthesize one narration asset per script section via TTS Hub."""
+    """Synthesize one narration asset per script section via TTS Hub.
+
+    Error taxonomy (L5/L6): only transient ProviderFailureError is
+    retryable (re-run the stage). Deterministic errors — unknown voice,
+    empty text, unsupported language, silence rejection, missing
+    path/config — fail fast with a clear cause and are never retried
+    blindly. Silence is never a fallback (fail closed).
+    """
     from tools.audio.tts_hub import TTSHub
 
     script = ctx.inputs.get("script") or {}
@@ -86,6 +93,11 @@ def run_narration(ctx: StageContext, cfg: dict[str, Any]) -> dict[str, Any]:
             "Narration needs script.sections (one asset per section).")
     voice = cfg.get("tts_voice")
     provider = cfg.get("tts_provider", "kokoro")
+    if not provider or not isinstance(provider, str):
+        from lib.producer.producer import CriticalStageError
+        raise CriticalStageError(
+            "Narration misconfigured: tts_provider must be a non-empty "
+            "string (deterministic config error, not retried).")
     audio_dir = ctx.workdir / "assets" / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
     tool = TTSHub()
@@ -104,12 +116,30 @@ def run_narration(ctx: StageContext, cfg: dict[str, Any]) -> dict[str, Any]:
             params["voice"] = voice
         if cfg.get("tts_language"):
             params["language"] = cfg["tts_language"]
-        result = tool.execute(params)
-        if not result.success:
+        try:
+            result = tool.execute(params)
+        except Exception as exc:
             from lib.producer.producer import CriticalStageError
             raise CriticalStageError(
+                f"Narration synthesis crashed for section "
+                f"{section.get('id', i)!r}: {type(exc).__name__}: {exc} "
+                f"(transient backend failures may retry; deterministic "
+                f"voice/text/config errors must be fixed, not retried).") from exc
+        if not result.success:
+            from lib.producer.producer import CriticalStageError
+            err = str(result.error or "")
+            lower = err.lower()
+            if any(marker in lower for marker in (
+                    "unknown voice", "invalid voice", "empty text",
+                    "unsupported language", "silence rejected", "silence")):
+                raise CriticalStageError(
+                    f"Narration synthesis refused for section "
+                    f"{section.get('id', i)!r}: {result.error} "
+                    f"(deterministic: fix voice/text/config, do not retry).")
+            raise CriticalStageError(
                 f"Narration synthesis failed for section "
-                f"{section.get('id', i)!r}: {result.error}")
+                f"{section.get('id', i)!r}: {result.error} "
+                f"(transient backend failure: retry the stage).")
         data = result.data.get("result", {}) if result.data else {}
         tracks.append({"section_id": section.get("id"),
                        "asset_id": f"narr_{section.get('id', i)}",
@@ -131,9 +161,17 @@ def run_narration(ctx: StageContext, cfg: dict[str, Any]) -> dict[str, Any]:
             raise CriticalStageError(
                 f"Narration asset {track['asset_id']!r} has no verified "
                 f"audio (refusing silent placeholder).")
-    manifest = {"tracks": len(tracks), "sections": tracks,
+    manifest = {"version": "1.0", "tracks": len(tracks),
+                "sections": tracks,
                 "voice": tracks[0]["voice"] if tracks else voice,
                 "provider": provider}
+    try:
+        from schemas.artifacts import validate_artifact
+        validate_artifact("narration_manifest", manifest)
+    except Exception as exc:
+        from lib.producer.producer import CriticalStageError
+        raise CriticalStageError(
+            f"Narration manifest invalid: {exc}") from exc
     return {"narration_manifest": manifest}
 
 
@@ -287,7 +325,15 @@ def run_footage_intelligence(ctx: StageContext,
         raise CriticalStageError(
             f"Footage intelligence rejected picks: "
             + ", ".join(v["asset_id"] for v in bad))
-    return {"footage_report": {"version": "1.0", "verdicts": verdicts}}
+    report = {"version": "1.0", "verdicts": verdicts}
+    try:
+        from schemas.artifacts import validate_artifact
+        validate_artifact("footage_report", report)
+    except Exception as exc:
+        from lib.producer.producer import CriticalStageError
+        raise CriticalStageError(
+            f"Footage report invalid: {exc}") from exc
+    return {"footage_report": report}
 
 
 def run_fact_check(ctx: StageContext, cfg: dict[str, Any],
@@ -410,6 +456,18 @@ def run_render(ctx: StageContext, cfg: dict[str, Any]) -> dict[str, Any]:
         raise CriticalStageError(
             f"Render runtime swap refused: locked={locked!r} "
             f"requested={requested!r}.")
+    # M4: renderer_family is locked alongside render_runtime (manifest
+    # editorial review_focus). Refuse silent family swaps; the legacy
+    # documentary-montage pipeline keeps working because it sets the same
+    # family explicitly at proposal.
+    locked_family = decisions.get("renderer_family")
+    requested_family = cfg.get("renderer_family")
+    if (locked_family and requested_family
+            and requested_family != locked_family):
+        from lib.producer.producer import CriticalStageError
+        raise CriticalStageError(
+            f"Renderer family swap refused: locked={locked_family!r} "
+            f"requested={requested_family!r}.")
     out_path = ctx.workdir / "renders" / "final.mp4"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     params: dict[str, Any] = {"operation": cfg.get("render_operation",
@@ -474,6 +532,23 @@ def run_human_review(ctx: StageContext, cfg: dict[str, Any],
             "Human review needs an explicit decision payload "
             "(stage_inputs['human_review']). The Producer never "
             "auto-approves.")
+    # L4: validate the review_decision on the production path before
+    # recording, so a malformed decision fails the stage (retryable)
+    # instead of persisting.
+    try:
+        from schemas.artifacts import validate_artifact
+        validate_artifact("review_decision", {
+            "decision": payload.get("decision", ""),
+            "approver": payload.get("approver", ""),
+            "rationale": payload.get("rationale", ""),
+            "timestamp": payload.get(
+                "timestamp", "2026-01-01T00:00:00+00:00"),
+            "episode_id": ctx.episode_id,
+        })
+    except Exception as exc:
+        from lib.producer.producer import CriticalStageError
+        raise CriticalStageError(
+            f"Human review decision invalid: {exc}") from exc
     # The Producer opens review (package assembled → READY_FOR_REVIEW)
     # before the explicit human verdict is recorded. Approval stays
     # human: payload carries approver identity + rationale, and the

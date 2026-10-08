@@ -36,12 +36,21 @@ _VALID = {
     "script": {"script": SCRIPT},
     "fact_check": {"factcheck_report": FACTCHECK},
     "storyboard": {"scene_plan": SCENES},
-    "narration": {"narration_manifest": {"tracks": 1}},
+    "narration": {"narration_manifest": {"version": "1.0", "tracks": 1,
+        "sections": [{"section_id": "s1", "asset_id": "narr_s1",
+                       "duration_seconds": 600, "path": "narr_s1.wav",
+                       "checksum": "sha256:" + "a" * 64,
+                       "voice": "af_heart", "provider": "kokoro"}]}},
     "footage": {"asset_manifest": MANIFEST_ART},
-    "footage_intelligence": {"footage_report": {"verdicts": []}},
+    "footage_intelligence": {"footage_report": {"version": "1.0",
+                                                 "verdicts": []}},
     "editorial": {"edit_decisions": EDIT},
     "timeline": {"edit_decisions": EDIT},
-    "audio": {"audio_mix": {"loudness_db": -16}},
+    "audio": {"audio_mix": {"version": "1.0", "mix_path": "mix.wav",
+                             "duration_seconds": 600.0,
+                             "loudness_db": -14.0,
+                             "true_peak_dbtp": -1.5,
+                             "loudness_measured": False}},
     "render": {"render_report": REPORT},
     "qa": {"final_review": QA},
     "packaging": {"package_bundle": {"version": "1.0",
@@ -236,6 +245,7 @@ def test_prerequisite_violation_fails_closed(tmp_path):
                          start_from="evidence", stop_after="evidence")
     producer.store.init("t")
     producer.store.transition("topic", "RUNNING")
+    producer.store.set_artifact("topic", BRIEF)
     producer.store.transition("topic", "APPROVED")
     producer.store.transition("topic", "DONE")
     with pytest.raises(ProducerHalted) as exc:

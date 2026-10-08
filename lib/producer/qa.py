@@ -41,8 +41,8 @@ from typing import Any
 from lib.producer.contracts import CheckResult, QAReport
 from lib.tts_hub.audio import assert_not_silence
 
-AUDIO_TARGET_LUFS = -16.0
-AUDIO_TOLERANCE_LUFS = 3.0
+AUDIO_TARGET_LUFS = -14.0
+AUDIO_TOLERANCE_LUFS = 2.0
 TRUE_PEAK_CEILING_DBTP = -1.0
 MIN_NARRATION_COVERAGE = 0.8
 MAX_ASSET_REPEATS = 2

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/audio_mix",
+  "title": "Audio Mix",
+  "description": "Verified final audio mix attestation: mix path, duration, loudness and true-peak measurements.",
+  "type": "object",
+  "required": ["version", "mix_path", "duration_seconds"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "mix_path": { "type": "string", "minLength": 1 },
+    "duration_seconds": { "type": "number", "exclusiveMinimum": 0 },
+    "sample_rate": { "type": "integer", "minimum": 1 },
+    "channels": { "type": "integer", "minimum": 1 },
+    "loudness_db": { "type": ["number", "null"] },
+    "true_peak_dbtp": { "type": ["number", "null"] },
+    "loudness_measured": { "type": "boolean" },
+    "narration": { "type": "object" },
+    "expected_duration_seconds": { "type": "number", "minimum": 0 }
+  },
+  "additionalProperties": true
+}

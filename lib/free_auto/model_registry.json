@@ -1,0 +1,884 @@
+{
+ "models": [
+  {
+   "benchmark": {
+    "date": "2026-09-02",
+    "note": "DeepSWE v1.1 75.4% -> coding 0.75; Terminal-Bench 2.1 88.8% -> agentic 0.89. Vendor scorecard (runs hot); Vals AI third-party SWE-bench 74.4% corroborates coding range. Confidence: medium-high. Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "Meta Muse Spark 1.3 scorecard via Coursiv (Sept 2026)"
+   },
+   "capabilities": {
+    "context_tokens": 1048576,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Muse Spark 1.3",
+   "experimental": false,
+   "id": "muse-spark-1.3",
+   "initial_priority": 1,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": 0.89,
+    "coding": 0.75,
+    "quality": 0.85,
+    "reasoning": 0.8
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "meta/muse-spark-1.3-contributor"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "paid",
+     "gateway": "openrouter",
+     "model": "meta/muse-spark-1.3-contributor"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": "2026-09-21",
+    "note": "DeepSWE v1.1 67.9% (Flash) -> coding 0.68. Vendor report; Xiaomi disclosed harness drift during eval (Flash 48.8 -> 65.68 across runs). No TB 2.1 figure for Flash (Pro 89.9 not transferable); TB 4.0 28.8 recorded but harness-incomparable, agentic stays operator. Confidence: medium. Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "Xiaomi MiMo-V2.6 technical report via kingy.ai (Oct 2026)"
+   },
+   "capabilities": {
+    "context_tokens": 1050000,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "MiMo V2.6 Flash",
+   "experimental": false,
+   "id": "mimo-v2.6-flash",
+   "initial_priority": 2,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": 0.82,
+    "coding": 0.68,
+    "quality": 0.82,
+    "reasoning": 0.8
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "xiaomi/mimo-v2.6-flash"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "paid",
+     "gateway": "openrouter",
+     "model": "xiaomi/mimo-v2.6-flash"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Verified from OpenRouter GET /v1/models supported_parameters + context_length, 2026-10-08. tool_use=tools param present; structured_output=response_format/structured_outputs present; reasoning=reasoning/include_reasoning present. No measured benchmark scores; priors remain operator estimates.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Laguna S 2.1",
+   "experimental": false,
+   "id": "laguna-s-2.1",
+   "initial_priority": 3,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": 0.75,
+    "coding": 0.82,
+    "quality": 0.78,
+    "reasoning": 0.72
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "free",
+     "gateway": "kilo",
+     "model": "poolside/laguna-s-2.1:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "poolside/laguna-s-2.1:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": "2026-06-04",
+    "note": "SWE-Bench Verified 71.9% -> coding 0.72; Terminal-Bench 2.1 56.4% -> agentic 0.56; GPQA Diamond 86.7% (aggregator) -> reasoning 0.87. Confidence: high (vendor primary; GPQA medium). Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "NVIDIA Nemotron-3-Ultra Technical Report (research.nvidia.com, Jun 2026)"
+   },
+   "capabilities": {
+    "context_tokens": 1000000,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "agentic-planning",
+   "display": "Nemotron 3 Ultra 550B",
+   "experimental": false,
+   "id": "nemotron-3-ultra-550b",
+   "initial_priority": 4,
+   "latency_class": "slow",
+   "priors": {
+    "agentic": 0.56,
+    "coding": 0.72,
+    "quality": 0.8,
+    "reasoning": 0.87
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "free",
+     "gateway": "kilo",
+     "model": "nvidia/nemotron-3-ultra-550b-a55b:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "nvidia/nemotron-3-ultra-550b-a55b:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": "2026-03-11",
+    "note": "SWE-Bench Verified (OpenHands) 60.47% -> coding 0.60; GPQA with-tools 82.70% -> reasoning 0.83. Terminal Bench hard/Core 2.0 figures recorded but harness-incomparable, agentic stays operator. Confidence: medium-high. Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "NVIDIA GTC launch coverage via llm-stats.com (Mar 2026)"
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "agentic-planning",
+   "display": "Nemotron 3 Super 120B",
+   "experimental": false,
+   "id": "nemotron-3-super-120b",
+   "initial_priority": 5,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": 0.78,
+    "coding": 0.6,
+    "quality": 0.77,
+    "reasoning": 0.83
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "free",
+     "gateway": "kilo",
+     "model": "nvidia/nemotron-3-super-120b-a12b:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "nvidia/nemotron-3-super-120b-a12b:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Verified from OpenRouter GET /v1/models supported_parameters + context_length, 2026-10-08. tool_use=tools param present; structured_output=response_format/structured_outputs present; reasoning=reasoning/include_reasoning present. No measured benchmark scores; priors remain operator estimates.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 1048576,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "agentic-planning",
+   "display": "Inkling Small",
+   "experimental": false,
+   "id": "inkling-small",
+   "initial_priority": 6,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": 0.78,
+    "coding": 0.74,
+    "quality": 0.75,
+    "reasoning": 0.76
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "free",
+     "gateway": "kilo",
+     "model": "thinkingmachines/inkling-small:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "thinkingmachines/inkling-small:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Verified from OpenRouter GET /v1/models supported_parameters + context_length, 2026-10-08. tool_use=tools param present; structured_output=response_format/structured_outputs present; reasoning=reasoning/include_reasoning present. No measured benchmark scores; priors remain operator estimates.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "fast-simple",
+   "display": "Step 3.7 Flash",
+   "experimental": false,
+   "id": "step-3.7-flash",
+   "initial_priority": 7,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": 0.7,
+    "coding": 0.72,
+    "quality": 0.72,
+    "reasoning": 0.7
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "free",
+     "gateway": "kilo",
+     "model": "stepfun/step-3.7-flash:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "paid",
+     "gateway": "openrouter",
+     "model": "stepfun/step-3.7-flash"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Verified from OpenRouter GET /v1/models supported_parameters + context_length, 2026-10-08. tool_use=tools param present; structured_output=response_format/structured_outputs present; reasoning=reasoning/include_reasoning present. No measured benchmark scores; priors remain operator estimates.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Ling 3.1 Flash",
+   "experimental": false,
+   "id": "ling-3.1-flash",
+   "initial_priority": 8,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": 0.7,
+    "coding": 0.72,
+    "quality": 0.71,
+    "reasoning": 0.7
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "inclusionai/ling-3.1-flash"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "openrouter",
+     "model": "inclusionai/ling-3.1-flash"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Verified from OpenRouter GET /v1/models supported_parameters + context_length, 2026-10-08. tool_use=tools param present; structured_output=response_format/structured_outputs present; reasoning=reasoning/include_reasoning present. No measured benchmark scores; priors remain operator estimates.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 256000,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "fast-simple",
+   "display": "North Mini Code",
+   "experimental": false,
+   "id": "north-mini-code",
+   "initial_priority": 9,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": 0.62,
+    "coding": 0.7,
+    "quality": 0.66,
+    "reasoning": 0.6
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "free",
+     "gateway": "kilo",
+     "model": "cohere/north-mini-code:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "cohere/north-mini-code:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "Verified from OpenRouter GET /v1/models supported_parameters + context_length, 2026-10-08. tool_use=tools param present; structured_output=response_format/structured_outputs present; reasoning=reasoning/include_reasoning present. No measured benchmark scores; priors remain operator estimates.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 1048756,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "experimental",
+   "display": "LongCat 2.5 Preview",
+   "experimental": true,
+   "id": "longcat-2.5-preview",
+   "initial_priority": 10,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": 0.55,
+    "coding": 0.55,
+    "quality": 0.55,
+    "reasoning": 0.55
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "meituan/longcat-2.0"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "paid",
+     "gateway": "openrouter",
+     "model": "meituan/longcat-2.0"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Apodex 1.1 Mini",
+   "experimental": false,
+   "id": "apodex-1.1-mini",
+   "initial_priority": 11,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "apodex/apodex-1.1-mini:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "apodex/apodex-1.1-mini:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Ling 3.0 Flash Sante",
+   "experimental": false,
+   "id": "ling-3.0-flash-sante",
+   "initial_priority": 12,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "inclusionai/ling-3.0-flash-sante:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "inclusionai/ling-3.0-flash-sante:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 512000,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Dots 3 Note Preview",
+   "experimental": false,
+   "id": "dots-3-note-preview",
+   "initial_priority": 13,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "dots-studio/dots-3-note-preview:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "dots-studio/dots-3-note-preview:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 65536,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "fast-simple",
+   "display": "Liquid LFM 2.5 2.6B",
+   "experimental": false,
+   "id": "lfm-2.5-2.6b",
+   "initial_priority": 14,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "liquid/lfm-2.5-2.6b:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "liquid/lfm-2.5-2.6b:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 1000000,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Nemotron 3.5 Lightning",
+   "experimental": false,
+   "id": "nemotron-3.5-lightning",
+   "initial_priority": 15,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "nvidia/nemotron-3.5-lightning:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "nvidia/nemotron-3.5-lightning:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 1048576,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "agentic-planning",
+   "display": "Inkling (full)",
+   "experimental": false,
+   "id": "inkling",
+   "initial_priority": 16,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "thinkingmachines/inkling:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "thinkingmachines/inkling:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": null,
+    "note": "New candidate from OpenRouter :free listing, 2026-10-08. Capabilities verified from supported_parameters; Kilo upstream slug mirrored from OpenRouter pattern, UNVERIFIED (free_tier unknown). No measured benchmarks.",
+    "source": null
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Laguna XS 2.1",
+   "experimental": false,
+   "id": "laguna-xs-2.1",
+   "initial_priority": 17,
+   "latency_class": "fast",
+   "priors": {
+    "agentic": null,
+    "coding": null,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "poolside/laguna-xs-2.1:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "poolside/laguna-xs-2.1:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": "2026-06-01",
+    "note": "SWE-bench 38.8% -> coding 0.39. Secondary source, single origin. Confidence: medium-low. Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "Medium @ffguci8 Nemotron 3 family analysis (2026)"
+   },
+   "capabilities": {
+    "context_tokens": 256000,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": false,
+    "tool_use": true
+   },
+   "category": "agentic-planning",
+   "display": "Nemotron 3 Nano Omni 30B Reason",
+   "experimental": false,
+   "id": "nemotron-3-nano-omni-30b",
+   "initial_priority": 18,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": null,
+    "coding": 0.39,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": "2026-05-01",
+    "note": "SWE-bench Verified 17.4% -> coding 0.17. Single independent source; corroborated by Google omitting SWE-bench from official numbers (official emphasis: LiveCodeBench 77.1%). Weak agentic coder, decent completer. Confidence: medium-low. Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "grigio.org head-to-head test via GitHub gist hungson175 (May 2026)"
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Gemma 4 26B IT",
+   "experimental": false,
+   "id": "gemma-4-26b",
+   "initial_priority": 19,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": null,
+    "coding": 0.17,
+    "quality": null,
+    "reasoning": null
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "google/gemma-4-26b-a4b-it:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "google/gemma-4-26b-a4b-it:free"
+    }
+   ]
+  },
+  {
+   "benchmark": {
+    "date": "2026-04-02",
+    "note": "SWE-bench Verified ~63% (approx) -> coding 0.63; GPQA Diamond 84.3 -> reasoning 0.84. Approximate secondary figures. Confidence: medium-low. Priors mapped as success-rate estimates (score/100) only for domain-matched standard benchmarks; unmatched priors stay operator estimates.",
+    "source": "DEV Community Gemma 4 guide (Apr 2026, secondary compilation)"
+   },
+   "capabilities": {
+    "context_tokens": 262144,
+    "multimodal": null,
+    "reasoning": true,
+    "structured_output": true,
+    "tool_use": true
+   },
+   "category": "general-coding",
+   "display": "Gemma 4 31B IT",
+   "experimental": false,
+   "id": "gemma-4-31b",
+   "initial_priority": 20,
+   "latency_class": "medium",
+   "priors": {
+    "agentic": null,
+    "coding": 0.63,
+    "quality": null,
+    "reasoning": 0.84
+   },
+   "upstreams": [
+    {
+     "api_key_env": "KILO_API_KEY",
+     "base_url_default": null,
+     "base_url_env": "KILO_BASE_URL",
+     "free_tier": "unknown",
+     "gateway": "kilo",
+     "model": "google/gemma-4-31b-it:free"
+    },
+    {
+     "api_key_env": "OPENROUTER_API_KEY",
+     "base_url_default": "https://openrouter.ai/api/v1",
+     "base_url_env": "OPENROUTER_BASE_URL",
+     "free_tier": "free",
+     "gateway": "openrouter",
+     "model": "google/gemma-4-31b-it:free"
+    }
+   ]
+  }
+ ]
+}

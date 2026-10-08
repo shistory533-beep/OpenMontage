@@ -102,6 +102,8 @@ def test_transition_sets_timestamps(tmp_path):
     assert doc["stages"]["topic"]["reviewed_at"]
     doc = store.transition("topic", "APPROVED")
     assert doc["stages"]["topic"]["approved_at"]
+    from tests.test_youtube_documentary_integration import BRIEF
+    store.set_artifact("topic", BRIEF)
     doc = store.transition("topic", "DONE")
     assert doc["stages"]["topic"]["done_at"]
 
@@ -144,12 +146,14 @@ def test_set_artifact_rejects_invalid_known_schema(tmp_path):
 
 
 def test_provider_agnostic_custom_payload(tmp_path):
-    store = make_store(tmp_path)  # 'evidence' has no canonical schema: free-form
+    from tests.test_youtube_documentary_integration import EVIDENCE
+    store = make_store(tmp_path)  # 'evidence' maps to evidence_bundle
     store.init("T")
-    assert "evidence" not in ARTIFACT_SCHEMA_MAP
-    doc = store.set_artifact("evidence", {"sources": [{"claim": "x"}],
-                                          "facts": [], "claims": []})
+    assert ARTIFACT_SCHEMA_MAP["evidence"] == "evidence_bundle"
+    doc = store.set_artifact("evidence", EVIDENCE)
     assert doc["stages"]["evidence"]["artifact_version"] == 1
+    with pytest.raises(Exception):
+        store.set_artifact("evidence", {"bogus": True})
 
 
 def test_history_is_append_only(tmp_path):

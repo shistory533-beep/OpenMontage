@@ -139,6 +139,20 @@ class ProducerAgent:
         if stop_after:
             self.stages = self.stages[:self.stages.index(stop_after) + 1]
         self.events_path = self.store.episode_dir / "producer_events.jsonl"
+        # Durable human approvals: survives restart (M1). The Episode Store
+        # APPROVED/DONE states are durable, but the pre-completion gate
+        # decision (awaiting_human -> approved resume) must also persist.
+        self.approvals_path = self.store.episode_dir / "producer_approvals.json"
+        # Durable attempt counters (L3): retry increments per stage.
+        self.attempts_path = self.store.episode_dir / "producer_attempts.json"
+        self._attempts: dict[str, int] = self._load_attempts()
+        persisted = self._load_approvals()
+        for stage, value in persisted.items():
+            self.approvals.setdefault(stage, value)
+        # Constructor-supplied approvals are explicit human decisions too:
+        # persist them so a restart before the next run keeps them.
+        if approvals:
+            self._save_approvals()
 
     # -- events --------------------------------------------------------
 
@@ -251,9 +265,28 @@ class ProducerAgent:
         for stage in self.stages:
             state = self.store.status().get(stage, "PENDING")
             if state == "DONE":
-                self.emit(stage, "stage_skipped", "already DONE")
-                completed.append(stage)
-                continue
+                # Revalidate before trusting a DONE skip (H2): an invalid
+                # stored artifact must not stay DONE. Reopen to RUNNING so
+                # it remains retryable instead of silently skipped.
+                try:
+                    from lib.episode_store import validate_stored_artifact
+                    doc = self.store.load()
+                    validate_stored_artifact(
+                        stage, (doc["stages"].get(stage) or {}).get(
+                            "artifact"))
+                except Exception as exc:
+                    self.emit(stage, "stage_invalid_on_resume", str(exc))
+                    try:
+                        self.store.transition(stage, "RUNNING")
+                    except Exception:
+                        pass
+                    state = self.store.status().get(stage, "PENDING")
+                    if state == "DONE":
+                        continue
+                else:
+                    self.emit(stage, "stage_skipped", "already DONE")
+                    completed.append(stage)
+                    continue
             try:
                 self._run_stage(stage, manifest, write_checkpoint)
             except ProducerHalted:
@@ -282,6 +315,8 @@ class ProducerAgent:
         from lib.checkpoint import CheckpointValidationError
 
         self.emit(stage, "stage_started", "")
+        attempt = self._next_attempt(stage)
+        self.emit(stage, "stage_attempt", f"attempt={attempt}")
         checkpoints = read_checkpoints(self.checkpoint_dir, self.episode_id,
                                        manifest)
         try:
@@ -299,7 +334,8 @@ class ProducerAgent:
                               f"cannot start stage: {exc}")
         write_checkpoint(self.checkpoint_dir, self.episode_id, stage,
                          "in_progress", {},
-                         pipeline_type=PIPELINE_TYPE)
+                         pipeline_type=PIPELINE_TYPE,
+                         metadata={"attempt": attempt})
         handler = self.handlers.get(stage)
         if handler is None:
             return self._fail(
@@ -329,6 +365,25 @@ class ProducerAgent:
                 if not isinstance(payload, dict):
                     raise ProducerError(
                         f"Stage {stage!r} artifact {name!r} must be a dict.")
+                if not payload:
+                    raise ProducerError(
+                        f"Stage {stage!r} artifact {name!r} is empty ({{}}): "
+                        f"refusing to persist (stage stays retryable).")
+                # Validate -> persist atomically -> DONE (M3). Validation
+                # happens before set_artifact so an invalid payload never
+                # overwrites the last valid state; set_artifact validates
+                # again fail-closed.
+                try:
+                    from schemas.artifacts import validate_artifact
+                    validate_artifact(name, payload)
+                except FileNotFoundError as exc:
+                    raise ProducerError(
+                        f"Stage {stage!r} artifact {name!r} has no "
+                        f"registered schema: {exc}") from exc
+                except Exception as exc:
+                    raise ProducerError(
+                        f"Stage {stage!r} artifact {name!r} rejected: "
+                        f"{exc}") from exc
                 self.store.set_artifact(stage, payload)
         except Exception as exc:
             return self._fail(stage, write_checkpoint,
@@ -343,7 +398,8 @@ class ProducerAgent:
                     self.checkpoint_dir, self.episode_id, stage,
                     "awaiting_human", artifacts,
                     pipeline_type=PIPELINE_TYPE,
-                    human_approval_required=True)
+                    human_approval_required=True,
+                    metadata={"attempt": attempt})
                 self.store.transition(stage, "REVIEW")
                 self.emit(stage, "stage_awaiting_human",
                           "gate requires explicit human approval")
@@ -351,7 +407,8 @@ class ProducerAgent:
             write_checkpoint(self.checkpoint_dir, self.episode_id, stage,
                              "completed", artifacts,
                              pipeline_type=PIPELINE_TYPE,
-                             human_approved=approved)
+                             human_approved=approved,
+                             metadata={"attempt": attempt})
             if gated:
                 self.store.transition(stage, "APPROVED")
             self.store.transition(stage, "DONE")
@@ -390,10 +447,79 @@ class ProducerAgent:
         return self.run()
 
     def record_approval(self, stage: str, approved: bool = True) -> None:
-        """Record an explicit human approval for a gated stage."""
+        """Record an explicit human approval for a gated stage.
+
+        Durable: written to producer_approvals.json beside episode.json so
+        approval survives restart. Publishing reads the durable Episode
+        Store APPROVED state + review_log.jsonl (see review module), never
+        this dict alone.
+        """
         self.approvals[stage] = approved
+        self._save_approvals()
         self.emit(stage, "gate_decision",
                   f"human approval recorded: {approved}")
+
+    def _load_approvals(self) -> dict[str, bool]:
+        try:
+            if not self.approvals_path.exists():
+                return {}
+            import json as _json
+            data = _json.loads(self.approvals_path.read_text(
+                encoding="utf-8"))
+            if not isinstance(data, dict):
+                return {}
+            return {str(k): bool(v) for k, v in data.items()}
+        except (OSError, ValueError):
+            return {}
+
+    def _save_approvals(self) -> None:
+        try:
+            self.approvals_path.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json
+            tmp = self.approvals_path.with_suffix(".json.tmp")
+            tmp.write_text(_json.dumps(self.approvals, indent=2),
+                           encoding="utf-8")
+            import os as _os
+            _os.replace(tmp, self.approvals_path)
+        except OSError:
+            pass
+
+    def _load_attempts(self) -> dict[str, int]:
+        try:
+            if not self.attempts_path.exists():
+                return {}
+            import json as _json
+            data = _json.loads(self.attempts_path.read_text(
+                encoding="utf-8"))
+            if not isinstance(data, dict):
+                return {}
+            out: dict[str, int] = {}
+            for k, v in data.items():
+                try:
+                    out[str(k)] = max(0, int(v))
+                except (TypeError, ValueError):
+                    continue
+            return out
+        except (OSError, ValueError):
+            return {}
+
+    def _save_attempts(self) -> None:
+        try:
+            self.attempts_path.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json
+            tmp = self.attempts_path.with_suffix(".json.tmp")
+            tmp.write_text(_json.dumps(self._attempts, indent=2),
+                           encoding="utf-8")
+            import os as _os
+            _os.replace(tmp, self.attempts_path)
+        except OSError:
+            pass
+
+    def _next_attempt(self, stage: str) -> int:
+        attempt = int(self._attempts.get(stage, 0)) + 1
+        self._attempts[stage] = attempt
+        self._save_attempts()
+        return attempt
 
     def _context(self, stage: str) -> "StageContext":
         doc = self.store.load()
@@ -418,7 +544,8 @@ class ProducerAgent:
                 pass
         return StageContext(episode_id=self.episode_id, stage=stage,
                             inputs=inputs,
-                            workdir=self.store.episode_dir, attempt=1,
+                            workdir=self.store.episode_dir,
+                            attempt=int(self._attempts.get(stage, 1) or 1),
                             config=self.config)
 
 

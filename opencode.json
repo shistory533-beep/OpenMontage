@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "prompt": "{file:.opencode/prompts/build-autoplan.md}"
+    }
+  },
+  "provider": {
+    "free-auto": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "FREE-AUTO",
+      "options": {
+        "baseURL": "http://127.0.0.1:4100/v1"
+      },
+      "models": {
+        "free-auto": {
+          "name": "FREE-AUTO"
+        }
+      }
+    }
+  }
+}

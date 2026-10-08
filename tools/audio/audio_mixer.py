@@ -219,7 +219,15 @@ class AudioMixer(BaseTool):
             target = -16.0
         # Clamp to a sane loudness range to avoid malformed ffmpeg args.
         target = max(-40.0, min(0.0, target))
-        return f"[{in_label}]loudnorm=I={target}:LRA=11:TP=-1.5[{out_label}]"
+        # Single-pass loudnorm sets integrated gain but does NOT guarantee
+        # true-peak compliance (peaks routinely exceed TP after linear gain,
+        # and alimiter is sample-peak while the ceiling is true-peak).
+        # Chain a sample-peak limiter at -3 dBFS so oversampled true peak
+        # stays under the -1.0 dBTP documentary ceiling with margin
+        # (covers lossy re-encode overshoot at mux).
+        return (f"[{in_label}]loudnorm=I={target}:LRA=11:TP=-1.5,"
+                f"alimiter=limit=0.707945:attack=7:release=100:"
+                f"level=disabled[{out_label}]")
 
     def _track_filters(self, track: dict[str, Any]) -> list[str]:
         """Build per-track filters on the source timeline before scheduling it.

@@ -13,6 +13,9 @@ import json
 
 from lib.episode_store import EpisodeStore
 from lib.factory_stages import APPROVAL_GATES, FACTORY_STAGES
+from tests.test_youtube_documentary_integration import (
+    BRIEF, EVIDENCE, FACTCHECK,
+)
 
 SCRIPT = {
     "version": "1.0",
@@ -54,15 +57,44 @@ RESEARCH = {"version": "1.0", "topic": "rivers",
             "sources": [{"url": "https://example.com/x", "title": f"s{i}",
                          "used_for": "u"} for i in range(5)]}
 
-PAYLOADS = {"research": RESEARCH, "script": SCRIPT, "storyboard": SCENE_PLAN,
-            "footage": MANIFEST, "timeline": EDIT, "editorial": EDIT,
-            "render": REPORT, "qa": QA, "publish": PUBLISH}
+PAYLOADS = {"topic": BRIEF, "research": RESEARCH, "evidence": EVIDENCE,
+            "script": SCRIPT, "fact_check": FACTCHECK,
+            "storyboard": SCENE_PLAN,
+            "narration": {"version": "1.0", "tracks": 1, "sections": [{
+                "section_id": "s1", "asset_id": "narr_s1",
+                "duration_seconds": 60.0}]},
+            "footage": MANIFEST,
+            "footage_intelligence": {"version": "1.0", "verdicts": []},
+            "editorial": EDIT, "timeline": EDIT,
+            "audio": {"version": "1.0", "mix_path": "mix.wav",
+                      "duration_seconds": 60.0},
+            "render": REPORT, "qa": QA,
+            "packaging": {"version": "1.0",
+                "titles": {"candidates": [
+                    {"title": f"Title {i}", "scores": {"clarity": 1.0},
+                     "final_score": 0.8, "misleading_risk": 0.0,
+                     "accepted": True} for i in range(5)]},
+                "chosen_title": "Title 0", "description": "d",
+                "chapters": [], "tags": {}, "subtitles": {},
+                "thumbnail": {"focal_subject": "river",
+                              "composition": "center", "text": "river",
+                              "contrast": "high",
+                              "visual_concept": "establishing",
+                              "reason": "fits"}},
+            "thumbnail": {"concept": "river at dawn"},
+            "human_review": {"decision": "APPROVED", "approver": "tester",
+                             "rationale": "ok",
+                             "timestamp": "2026-10-06T00:00:00+00:00",
+                             "episode_id": "ep-int"},
+            "publish": PUBLISH,
+            "analytics": {"version": "1.0", "metrics": {}}}
 
 
 def _drive_full_lifecycle(store: EpisodeStore):
     for stage in FACTORY_STAGES:
         store.transition(stage, "RUNNING")
-        payload = PAYLOADS.get(stage, {"note": f"{stage} payload"})
+        payload = PAYLOADS.get(stage)
+        assert payload is not None, f"no valid payload for {stage}"
         store.set_artifact(stage, payload)
         # editorial/timeline share the EDIT payload shape; both validate as edit_decisions
         if stage in APPROVAL_GATES:
@@ -91,7 +123,7 @@ def test_crash_resume_from_disk(tmp_path):
     store.init("Crash Ep")
     for stage in ("topic", "evidence"):
         store.transition(stage, "RUNNING")
-        store.set_artifact(stage, {"note": stage})
+        store.set_artifact(stage, PAYLOADS[stage])
         if stage in APPROVAL_GATES:
             store.transition(stage, "REVIEW")
             store.transition(stage, "APPROVED")

@@ -49,20 +49,55 @@ EPISODE_SCHEMA_PATH = (
 )
 
 # Map factory stages to canonical OpenMontage artifact names where one exists.
-# Payloads for these stages are additionally validated with
-# schemas/artifacts/<name>. Validation is best-effort by design: unknown
-# names are skipped (provider-agnostic custom payloads stay legal).
+# Every youtube-documentary `produces` entry has a registered schema here;
+# payload validation is fail-closed (unknown stage = error, empty = error).
 ARTIFACT_SCHEMA_MAP: dict[str, str] = {
+    "topic": "brief",
     "research": "research_brief",
+    "evidence": "evidence_bundle",
     "script": "script",
+    "fact_check": "factcheck_report",
     "storyboard": "scene_plan",  # storyboard is a visual approval view over slots; scene_plan is the closest canonical contract
+    "narration": "narration_manifest",
     "footage": "asset_manifest",
+    "footage_intelligence": "footage_report",
     "editorial": "edit_decisions",
     "timeline": "edit_decisions",
+    "audio": "audio_mix",
     "render": "render_report",
     "qa": "final_review",
+    "packaging": "package_bundle",
+    "thumbnail": "thumbnail_set",
+    "human_review": "review_decision",
     "publish": "publish_log",
+    "analytics": "analytics_report",
 }
+
+
+def validate_stored_artifact(stage: str, artifact: Any) -> None:
+    """Fail-closed payload check used before DONE and on resume.
+
+    Rejects non-dict/empty payloads and schema-invalid payloads for mapped
+    stages. Unknown stages raise (no silent pass for unmapped contracts).
+    """
+    if not isinstance(artifact, dict):
+        raise ValueError(
+            f"Stage {stage!r} artifact must be a JSON object (dict).")
+    if not artifact:
+        raise ValueError(
+            f"Stage {stage!r} artifact is empty ({{}}): a required stage "
+            f"is never DONE on an empty artifact.")
+    schema_name = ARTIFACT_SCHEMA_MAP.get(stage)
+    if schema_name is None:
+        raise ValueError(
+            f"Stage {stage!r} has no registered artifact schema "
+            f"(contract gap: add it to ARTIFACT_SCHEMA_MAP).")
+    try:
+        from schemas.artifacts import validate_artifact
+    except Exception as exc:
+        raise ValueError(
+            f"Stage {stage!r} artifact validation unavailable: {exc}")
+    validate_artifact(schema_name, artifact)
 
 
 def _utcnow() -> str:
@@ -170,6 +205,17 @@ class EpisodeStore:
             cur["approved_at"] = now
         if to_state == "DONE":
             cur["done_at"] = now
+        # DONE requires a valid, non-empty artifact: validate before
+        # completion so {} (or a schema-invalid payload) can never mark a
+        # required stage DONE. Invalid artifacts stay retryable (FAILED or
+        # rework via RUNNING), never silently completed.
+        if to_state == "DONE":
+            try:
+                validate_stored_artifact(stage, cur.get("artifact"))
+            except Exception as exc:
+                raise ValueError(
+                    f"Stage {stage!r} -> DONE blocked: stored artifact "
+                    f"invalid: {exc}") from exc
         if to_state == "FAILED":
             cur["failure_reason"] = failure_reason or cur.get("failure_reason")
         else:
@@ -193,20 +239,24 @@ class EpisodeStore:
         *,
         provider: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Versioned artifact write. Bumps artifact_version, archives history."""
+        """Versioned artifact write. Bumps artifact_version, archives history.
+
+        Validate -> persist atomically -> DONE (by the caller). Invalid
+        artifacts raise and never overwrite the last valid state: the write
+        is aborted before any mutation/archives when validation fails.
+        """
         if not isinstance(artifact, dict):
             raise ValueError("Artifact payload must be a JSON object (dict).")
+        if not artifact:
+            raise ValueError(
+                f"Stage {stage!r} artifact is empty ({{}}): refusing to "
+                f"persist (last valid state preserved).")
         doc = self.load()
         if stage not in doc["stages"]:
             raise IllegalTransitionError(f"Unknown factory stage: {stage!r}")
-        schema_name = ARTIFACT_SCHEMA_MAP.get(stage)
-        if schema_name is not None:
-            try:
-                from schemas.artifacts import validate_artifact
-            except Exception:
-                validate_artifact = None  # type: ignore[assignment]
-            if validate_artifact is not None:
-                validate_artifact(schema_name, artifact)
+        # Validate BEFORE any mutation so an invalid payload never
+        # overwrites the last valid state and never bumps the version.
+        validate_stored_artifact(stage, artifact)
         cur = doc["stages"][stage]
         cur["artifact"] = artifact
         cur["artifact_version"] = int(cur.get("artifact_version", 0)) + 1

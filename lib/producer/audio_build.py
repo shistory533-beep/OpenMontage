@@ -1,5 +1,4 @@
 """Audio production: verification + mix planning over the existing pipeline.
-
 Uses audio_mixer (full_mix) and TTS Hub provenance — nothing is
 reimplemented. Verification is pure-Python where possible (wav decode,
 silence rejection) with ffmpeg-backed loudness/true-peak measurement
@@ -25,8 +24,8 @@ from typing import Any
 
 from lib.tts_hub.audio import assert_not_silence, probe_wav
 
-DIALOGUE_TARGET_LUFS = -16.0
-LOUDNESS_TOLERANCE_LUFS = 3.0
+DIALOGUE_TARGET_LUFS = -14.0
+LOUDNESS_TOLERANCE_LUFS = 2.0
 TRUE_PEAK_CEILING_DBTP = -1.0
 COVERAGE_TOLERANCE_SECONDS = 1.0
 

@@ -78,13 +78,21 @@ CHAIN = [("topic", {"brief": BRIEF}, True),
          ("script", {"script": SCRIPT}, True),
          ("fact_check", {"factcheck_report": FACTCHECK}, False),
          ("storyboard", {"scene_plan": SCENES}, True),
-         ("narration", {"narration_manifest": {"tracks": 6}}, False),
+         ("narration", {"narration_manifest": {"version": "1.0",
+           "tracks": 1, "sections": [{
+               "section_id": "s1", "asset_id": "narr_s1",
+               "duration_seconds": 600, "path": "narr_s1.wav",
+               "checksum": "sha256:" + "a" * 64,
+               "voice": "af_heart", "provider": "kokoro"}]}}, False),
          ("footage", {"asset_manifest": MANIFEST_ART}, True),
-         ("footage_intelligence", {"footage_report": {"verdicts": []}},
+         ("footage_intelligence", {"footage_report": {"version": "1.0",
+           "verdicts": []}},
           False),
          ("editorial", {"edit_decisions": EDIT}, False),
          ("timeline", {"edit_decisions": EDIT}, False),
-         ("audio", {"audio_mix": {"loudness_db": -16}}, False),
+         ("audio", {"audio_mix": {"version": "1.0", "mix_path": "mix.wav",
+           "duration_seconds": 600, "loudness_db": -14.0,
+           "true_peak_dbtp": -1.5, "loudness_measured": False}}, False),
          ("render", {"render_report": REPORT}, False),
          ("qa", {"final_review": QA}, False),
          ("packaging", {"package_bundle": {"version": "1.0",
@@ -165,6 +173,7 @@ def test_publish_blocked_then_allowed(tmp_path):
                      human_approved=True)
     assert get_next_stage(tmp_path, pid, PIPE) == "analytics"  # terminal stage
     write_checkpoint(tmp_path, pid, "analytics",
-                     "completed", {"analytics_report": {"metrics": {}}},
+                     "completed", {"analytics_report": {"version": "1.0",
+                                                        "metrics": {}}},
                      pipeline_type=PIPE)
     assert get_next_stage(tmp_path, pid, PIPE) is None  # run complete

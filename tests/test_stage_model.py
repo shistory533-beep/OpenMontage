@@ -56,6 +56,44 @@ def manifest():
     return load_pipeline("youtube-documentary")
 
 
+def _valid_artifact(stage: str) -> dict:
+    """Minimal schema-valid payload per stage (H2: DONE needs real content)."""
+    from tests.test_youtube_documentary_integration import (
+        BRIEF, EVIDENCE, FACTCHECK, MANIFEST_ART, PUBLISH, QA, REPORT,
+        RESEARCH, SCENES, SCRIPT, EDIT,
+    )
+    narr = {"version": "1.0", "tracks": 1, "sections": [{
+        "section_id": "s1", "asset_id": "narr_s1",
+        "duration_seconds": 600.0}]}
+    bundle = {"version": "1.0",
+        "titles": {"candidates": [
+            {"title": f"Title {i}", "scores": {"clarity": 1.0},
+             "final_score": 0.8, "misleading_risk": 0.0,
+             "accepted": True} for i in range(5)]},
+        "chosen_title": "Title 0", "description": "d",
+        "chapters": [], "tags": {}, "subtitles": {},
+        "thumbnail": {"focal_subject": "river", "composition": "center",
+                      "text": "river", "contrast": "high",
+                      "visual_concept": "establishing", "reason": "fits"}}
+    review = {"decision": "APPROVED", "approver": "tester",
+              "rationale": "ok", "timestamp": "2026-10-06T00:00:00+00:00",
+              "episode_id": "ep-sm"}
+    table = {
+        "topic": BRIEF, "research": RESEARCH, "evidence": EVIDENCE,
+        "script": SCRIPT, "fact_check": FACTCHECK, "storyboard": SCENES,
+        "narration": narr, "footage": MANIFEST_ART,
+        "footage_intelligence": {"version": "1.0", "verdicts": []},
+        "editorial": EDIT, "timeline": EDIT,
+        "audio": {"version": "1.0", "mix_path": "mix.wav",
+                  "duration_seconds": 600.0},
+        "render": REPORT, "qa": QA, "packaging": bundle,
+        "thumbnail": {"concept": "river at dawn"},
+        "human_review": review, "publish": PUBLISH,
+        "analytics": {"version": "1.0", "metrics": {}},
+    }
+    return dict(table[stage])
+
+
 def cp(status="completed", approved=True, artifacts=None):
     return {"status": status, "human_approved": approved,
             "artifacts": artifacts or {}}
@@ -149,6 +187,7 @@ def test_invalid_transition_rejected(tmp_path):
     store = EpisodeStore("ep-sm-003", projects_dir=tmp_path)
     store.init("T")
     store.transition("research", "RUNNING")
+    store.set_artifact("research", _valid_artifact("research"))
     # research is ungated: RUNNING -> DONE directly is legal...
     doc = store.transition("research", "DONE")
     assert doc["stages"]["research"]["state"] == "DONE"
@@ -162,6 +201,7 @@ def test_ungated_running_to_done_is_legal_but_gated_is_not(tmp_path):
     store.init("T")
     # research is ungated: RUNNING -> DONE directly is legal
     store.transition("research", "RUNNING")
+    store.set_artifact("research", _valid_artifact("research"))
     doc = store.transition("research", "DONE")
     assert doc["stages"]["research"]["state"] == "DONE"
     # script is gated: RUNNING -> DONE without APPROVED is blocked
@@ -182,6 +222,7 @@ def test_approval_gate_on_every_gated_stage(tmp_path):
             store.transition(stage, "DONE")
         store.transition(stage, "REVIEW")
         store.transition(stage, "APPROVED")
+        store.set_artifact(stage, _valid_artifact(stage))
         doc = store.transition(stage, "DONE")
         assert doc["stages"][stage]["state"] == "DONE"
 
@@ -190,6 +231,7 @@ def test_rework_clears_approval(tmp_path):
     store = EpisodeStore("ep-sm-005", projects_dir=tmp_path)
     store.init("T")
     store.transition("script", "RUNNING")
+    store.set_artifact("script", _valid_artifact("script"))
     store.transition("script", "APPROVED")
     store.transition("script", "RUNNING")  # reopen for rework
     with pytest.raises(ApprovalGateError):
@@ -261,10 +303,8 @@ def test_store_resume_after_crash_mid_chain(tmp_path):
     store.init("T")
     for stage in CANONICAL[:CANONICAL.index("footage")]:
         store.transition(stage, "RUNNING")
-        # Transitions never require artifacts; only write payloads where no
-        # canonical schema applies (schema stages stay payload-free here).
-        if stage not in ARTIFACT_SCHEMA_MAP:
-            store.set_artifact(stage, {"note": stage})
+        # H2: DONE requires a valid, non-empty artifact on every stage.
+        store.set_artifact(stage, _valid_artifact(stage))
         if stage in APPROVAL_GATES:
             store.transition(stage, "REVIEW")
             store.transition(stage, "APPROVED")
