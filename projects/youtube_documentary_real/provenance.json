@@ -247,6 +247,54 @@
       "error": null,
       "timestamp": 1791469038.1460407,
       "notes": "Video stream extended with real archive.org clip (archive_clip.mp4, 94.24s, 1920x1080, public domain) trimmed to 49.72s and concatenated with existing 100.3s stream; final video stream 150.02s matches container/audio 150.02s; narration 92.94s preserved; no paid APIs; H.264/AAC valid; real footage only."
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "canonical_pipeline",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791473245.1627162,
+      "notes": "Automatic factory run: topic='OpenMontage Automated Factory Milestone'; approval=automatic; providers=free/local-first; resume supported.",
+      "job_id": "openmontage_automated_factory_milestone_1791473245"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "canonical_pipeline",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791473264.3289986,
+      "notes": "Automatic factory run: topic='OpenMontage Automated Factory Milestone'; approval=automatic; providers=free/local-first; resume supported.",
+      "job_id": "openmontage_automated_factory_milestone_1791473264"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "canonical_pipeline",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791473265.221647,
+      "notes": "Automatic factory run: topic='Re-run idempotent'; approval=automatic; providers=free/local-first; resume supported.",
+      "job_id": "re-run_idempotent_1791473265"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "canonical_pipeline",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791473284.2368302,
+      "notes": "Automatic factory run: topic='Final Proof Milestone'; approval=automatic; providers=free/local-first; resume supported.",
+      "job_id": "final_proof_milestone_1791473284"
     }
   ],
   "stage_timings": {

@@ -1,0 +1,37 @@
+# Factory production config — config-driven, free/local-first
+pipeline:
+  type: youtube-documentary
+  topic: "OpenMontage Factory Milestone — Automated Documentary"
+  target_duration_s: 150
+  resolution: "1920x1080"
+  fps: 30000/1001
+  codec: h264
+  audio_codec: aac
+  approval_mode: automatic
+
+providers:
+  tts: [piper_tts, local_piper]      # free/local first
+  footage: [direct_clip_search, archive_org, nasa]
+  video_compose: [ffmpeg]
+  audio_mix: [ffmpeg]
+  music: [music_library]
+  export: [ffmpeg]
+  fallback_chain: true
+
+retry:
+  max_retries: 2
+  retry_classes: [TRANSIENT]
+  do_not_retry: [AUTH_REQUIRED, NO_ELIGIBLE_PROVIDER, PERMANENT, VALIDATION_FAILED]
+
+qa_policy:
+  gate_before_publish: true
+  checks: [duration_align, h264_valid, aac_valid, resolution, subtitles, narration_non_empty, provenance_complete, no_paid_usage]
+
+output:
+  dir: projects/youtube_documentary_real
+  final_name: final_3min_correct_v2.mp4
+  provenance_path: provenance.json
+
+observability:
+  backlot: true
+  stage_rail: true
