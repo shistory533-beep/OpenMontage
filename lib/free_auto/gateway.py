@@ -566,6 +566,36 @@ def serve(host: str = "127.0.0.1", port: int = DEFAULT_PORT,
     return server
 
 
+def probe_endpoint(base_url: str, timeout_s: float = 5.0) -> dict:
+    """Health-check the gateway without raising (incident signature guard).
+
+    Returns {"ok": True, ...} when GET <base>/models answers, else
+    {"ok": False, "error": ...} — e.g. "connection_refused" when no
+    gateway process is listening (the 2026-10-08 incident signature).
+    Operators and tests use this instead of bare urlopen so a dead
+    gateway is a structured finding, not a traceback.
+    """
+    url = base_url.rstrip("/") + "/models"
+    try:
+        with urllib.request.urlopen(url, timeout=timeout_s) as resp:
+            body = json.loads(resp.read().decode("utf-8") or "{}")
+            models = [m.get("id") for m in body.get("data", [])]
+            return {"ok": resp.status == 200 and VIRTUAL_MODEL in models,
+                    "http": resp.status, "models": models}
+    except urllib.error.URLError as e:
+        reason = getattr(e, "reason", e)
+        name = type(reason).__name__
+        text = str(reason) or str(e)
+        if "refused" in text.lower():
+            return {"ok": False, "error": "connection_refused",
+                    "detail": f"{name}: {text}"}
+        return {"ok": False, "error": "unreachable",
+                "detail": f"{name}: {text}"}
+    except Exception as e:  # timeout, bad JSON — still structured
+        return {"ok": False, "error": "probe_failed",
+                "detail": f"{type(e).__name__}: {e}"}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="FREE-AUTO adaptive free-model gateway")
     parser.add_argument("--host", default="127.0.0.1")
