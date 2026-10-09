@@ -371,6 +371,20 @@
       "notes": "Automatic factory run with OmniRoute auto default model; approval=automatic; providers=free/local-first (omniroute gateway); resume supported.",
       "job_id": "isolation_job_a_1791475075",
       "requested_model": "omniroute/auto"
+    },
+    {
+      "stage": "factory_run",
+      "provider": "openmontage_factory",
+      "model": "omniroute/auto",
+      "artifact": "final_3min_correct_v2.mp4",
+      "duration_s": 150.02,
+      "free": true,
+      "error": null,
+      "timestamp": 1791476451.5353465,
+      "notes": "Automatic factory run with OmniRoute auto default model; approval=automatic; providers=free/local-first (omniroute gateway); resume supported.",
+      "job_id": "omniroute_auto_test_1791476451",
+      "requested_model": "omniroute/auto",
+      "requested_role": "omniroute"
     }
   ],
   "stage_timings": {
